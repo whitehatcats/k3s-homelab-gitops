@@ -7,4 +7,5 @@ The stack includes components such as Traefik, Vault, Longhorn, cert-manager, an
 
 For a complete overview, documentation, and technical write-ups, visit my portfolio:
 
-👉 **[daniellincu.dev](https://daniellincu.dev)**
+**Portfolio:** [daniellincu.dev](https://daniellincu.dev)
+
