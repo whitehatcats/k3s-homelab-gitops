@@ -1,0 +1,23 @@
+# ============================================================
+# Traefik Middleware - WordPress Admin AllowList
+# ============================================================
+
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+
+metadata:
+  name: wp-admin-allowlist
+  namespace: wordpress-prod
+
+  annotations:
+    traefik.io/middleware-log-level: DEBUG
+
+
+# ------------------------------------------------------------
+# IP Allow List Configuration
+# ------------------------------------------------------------
+spec:
+  ipAllowList:
+    sourceRange:
+      - 192.168.10.0/24
+      - 127.0.0.1/32

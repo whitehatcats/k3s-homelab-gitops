@@ -1,0 +1,42 @@
+# ============================================================
+# Argo CD Application — Kube-VIP (Control Plane Virtual IP)
+# ============================================================
+
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: kube-vip
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+
+spec:
+  # ------------------------------------------------------------
+  # Project and Source Repository
+  # ------------------------------------------------------------
+  project: homelab
+  source:
+    repoURL: git@github.com:whitehatcats/k3s-homelab-gitops.git
+    targetRevision: HEAD
+    path: infra/kube-vip
+    directory:
+      recurse: true
+
+  # ------------------------------------------------------------
+  # Destination Cluster and Namespace
+  # ------------------------------------------------------------
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: kube-system
+
+  # ------------------------------------------------------------
+  # Sync Policy
+  # ------------------------------------------------------------
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=false
+      - PruneLast=true
+      - DeletePropagationPolicy=foreground

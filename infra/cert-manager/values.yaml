@@ -1,0 +1,89 @@
+# ============================================================
+# cert-manager Helm Chart Values
+# ============================================================
+
+installCRDs: true
+
+
+# ------------------------------------------------------------
+# Controller
+# ------------------------------------------------------------
+replicaCount: 2
+
+extraArgs:
+  - --enable-certificate-owner-ref=true
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 200m
+    memory: 256Mi
+
+nodeSelector:
+  kubernetes.io/os: linux
+
+
+# ------------------------------------------------------------
+# Vault CSI Integration
+# ------------------------------------------------------------
+volumes:
+  - name: secrets-store
+    csi:
+      driver: secrets-store.csi.k8s.io
+      readOnly: true
+      volumeAttributes:
+        secretProviderClass: cloudflare-api-token   # matches SPC name
+
+volumeMounts:
+  - name: secrets-store
+    mountPath: /mnt/secrets-store
+    readOnly: true
+
+
+# ------------------------------------------------------------
+# Prometheus Metrics
+# ------------------------------------------------------------
+prometheus:
+  enabled: true
+  servicemonitor:
+    enabled: false
+  podmonitor:
+    enabled: false
+
+
+# ------------------------------------------------------------
+# CA Injector & Webhook
+# ------------------------------------------------------------
+cainjector:
+  enabled: true
+  replicaCount: 1
+
+webhook:
+  replicaCount: 2
+  securePort: 10250
+
+
+# ------------------------------------------------------------
+# Startup API Check
+# ------------------------------------------------------------
+startupapicheck:
+  enabled: true
+
+
+# ------------------------------------------------------------
+# Security Context
+# ------------------------------------------------------------
+securityContext:
+  runAsNonRoot: true
+  seccompProfile:
+    type: RuntimeDefault
+
+containerSecurityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+  capabilities:
+    drop: ["ALL"]
+
+enableServiceLinks: false

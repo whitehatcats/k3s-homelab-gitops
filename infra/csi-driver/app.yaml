@@ -1,0 +1,53 @@
+# ============================================================
+# Argo CD Application — Secrets Store CSI Driver
+# ============================================================
+
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: csi-driver
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+
+spec:
+  # ------------------------------------------------------------
+  # Project and Sources (Multi-Source Reference)
+  # ------------------------------------------------------------
+  project: homelab
+
+  sources:
+    # ----------------------------------------------------------
+    # 1️⃣ Git repository for Helm values
+    # ----------------------------------------------------------
+    - repoURL: git@github.com:whitehatcats/k3s-homelab-gitops.git
+      targetRevision: main
+      ref: values
+
+    # ----------------------------------------------------------
+    # 2️⃣ Secrets Store CSI Driver Helm chart
+    # ----------------------------------------------------------
+    - repoURL: https://kubernetes-sigs.github.io/secrets-store-csi-driver/charts
+      chart: secrets-store-csi-driver
+      targetRevision: 1.5.4
+      helm:
+        valueFiles:
+          - $values/infra/csi-driver/values.yaml
+
+  # ------------------------------------------------------------
+  # Destination Cluster and Namespace
+  # ------------------------------------------------------------
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: kube-system
+
+  # ------------------------------------------------------------
+  # Sync Policy
+  # ------------------------------------------------------------
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - PruneLast=true
+      - DeletePropagationPolicy=foreground

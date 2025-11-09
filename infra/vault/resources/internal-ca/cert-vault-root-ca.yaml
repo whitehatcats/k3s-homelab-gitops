@@ -1,0 +1,33 @@
+# ============================================================
+# Certificate | Vault Root CA (Self-Signed)
+# ============================================================
+
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: vault-root-ca
+  namespace: vault
+
+
+# ------------------------------------------------------------
+# Specification
+# ------------------------------------------------------------
+spec:
+  isCA: true
+  commonName: vault-root-ca
+  secretName: vault-root-ca
+
+  duration: 87600h          # 10 years
+  renewBefore: 720h         # 30 days before expiration
+
+  privateKey:
+    algorithm: RSA
+    size: 2048
+
+  usages:
+    - cert sign
+    - crl sign
+
+  issuerRef:
+    name: vault-selfsigned-root
+    kind: ClusterIssuer

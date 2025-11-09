@@ -1,0 +1,54 @@
+# ============================================================
+# Kustomization - WordPress (Development)
+# ============================================================
+
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: wordpress-dev
+
+
+# ------------------------------------------------------------
+# Base Resources & App Definition
+# ------------------------------------------------------------
+resources:
+  - ../../base
+  - app.yaml
+
+
+# ------------------------------------------------------------
+# Common Labels
+# ------------------------------------------------------------
+commonLabels:
+  env: dev
+
+
+# ------------------------------------------------------------
+# Strategic Merge Patches
+# ------------------------------------------------------------
+patches:
+  - path: patch-spc.yaml
+    target:
+      kind: SecretProviderClass
+      name: vault-wp-secrets
+
+  - path: patch-ingressroute.yaml
+    target:
+      kind: IngressRoute
+      name: wordpress
+
+  - path: patch-cert.yaml
+    target:
+      kind: Certificate
+      name: wordpress-tls
+
+
+# ------------------------------------------------------------
+# JSON 6902 Patches
+# ------------------------------------------------------------
+patchesJson6902:
+  - target:
+      version: v1
+      kind: PersistentVolume
+      name: wordpress-pv
+    path: patch-pv.yaml

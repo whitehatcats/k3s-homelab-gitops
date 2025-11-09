@@ -1,0 +1,31 @@
+# ============================================================
+# IngressRoute - Vault UI (HTTPS via Traefik)
+# ============================================================
+
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: vault
+  namespace: vault
+
+spec:
+  entryPoints:
+    - websecure
+
+  # ------------------------------------------------------------
+  # Routing Rules
+  # ------------------------------------------------------------
+  routes:
+    - match: Host(`vault.kub.techcats.org`)
+      kind: Rule
+      services:
+        - name: vault-active
+          port: 8200
+          scheme: https
+          serversTransport: vault-secure
+
+  # ------------------------------------------------------------
+  # TLS Configuration
+  # ------------------------------------------------------------
+  tls:
+    secretName: vault-tls-secret

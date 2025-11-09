@@ -1,0 +1,5 @@
+resources:
+  - mariadb-ns.yaml
+  - mariadb-spc.yaml
+  - mariadb-sa.yaml
+  - persistence.yaml

@@ -1,0 +1,6 @@
+- op: replace
+  path: /metadata/name
+  value: wordpress-pv-prod
+- op: replace
+  path: /spec/csi/volumeHandle
+  value: wordpress-prod

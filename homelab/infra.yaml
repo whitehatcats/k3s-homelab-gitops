@@ -1,0 +1,45 @@
+# ============================================================
+# Argo CD Application - App of Apps (Infrastructure Layer)
+# ============================================================
+
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+
+metadata:
+  name: app-of-apps-infra
+  namespace: argocd
+
+
+# ------------------------------------------------------------
+# Application Specification
+# ------------------------------------------------------------
+spec:
+  project: homelab
+
+
+  # ----------------------------------------------------------
+  # Source Configuration
+  # ----------------------------------------------------------
+  source:
+    repoURL: git@github.com:whitehatcats/k3s-homelab-gitops.git
+    targetRevision: HEAD
+    path: infra
+    directory:
+      recurse: false
+
+
+  # ----------------------------------------------------------
+  # Destination
+  # ----------------------------------------------------------
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argocd
+
+
+  # ----------------------------------------------------------
+  # Sync Policy
+  # ----------------------------------------------------------
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true

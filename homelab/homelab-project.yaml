@@ -1,0 +1,28 @@
+# ============================================================
+# Argo CD Project - Homelab
+# ============================================================
+
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+
+metadata:
+  name: homelab
+  namespace: argocd
+
+
+# ------------------------------------------------------------
+# Project Specification
+# ------------------------------------------------------------
+spec:
+  description: K3s homelab managed by Argo CD and K9s
+
+  sourceRepos:
+    - "*"
+
+  destinations:
+    - namespace: "*"
+      server: "*"
+
+  clusterResourceWhitelist:
+    - group: "*"
+      kind: "*"

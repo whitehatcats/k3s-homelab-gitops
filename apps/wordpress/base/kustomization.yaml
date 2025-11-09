@@ -1,0 +1,6 @@
+resources:
+  - persistence.yaml
+  - wordpress-spc.yaml
+  - wordpress-cert.yaml
+  - wordpress-ingressroute.yaml
+  - middleware-allowlist.yaml

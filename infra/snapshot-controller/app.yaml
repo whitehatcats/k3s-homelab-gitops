@@ -1,0 +1,56 @@
+# ============================================================
+# Argo CD Application - Snapshot Controller (Longhorn + Velero)
+# ============================================================
+
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: snapshot-controller
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+  annotations:
+    argocd.argoproj.io/sync-wave: "-2"  # sync early before Longhorn & Velero
+
+spec:
+  project: homelab
+
+  # ------------------------------------------------------------
+  # Destination Cluster
+  # ------------------------------------------------------------
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: kube-system
+
+  # ------------------------------------------------------------
+  # Sources
+  # ------------------------------------------------------------
+  sources:
+    # ----------------------------------------------------------
+    # 1. External Helm Chart (Piraeus)
+    # ----------------------------------------------------------
+    - repoURL: https://piraeus.io/helm-charts/
+      chart: snapshot-controller
+      targetRevision: 4.1.1
+      helm:
+        valueFiles:
+          - $values/infra/snapshot-controller/values.yaml
+
+    # ----------------------------------------------------------
+    # 2. Git Repository (Helm Values Reference)
+    # ----------------------------------------------------------
+    - repoURL: git@github.com:whitehatcats/k3s-homelab-gitops.git
+      targetRevision: HEAD
+      ref: values
+
+  # ------------------------------------------------------------
+  # Sync Policy
+  # ------------------------------------------------------------
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=false
+      - ServerSideApply=true
+      - ApplyOutOfSyncOnly=true

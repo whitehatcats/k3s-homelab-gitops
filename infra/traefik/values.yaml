@@ -1,0 +1,70 @@
+# ============================================================
+# Helm Values — Traefik (Ingress Controller)
+# ============================================================
+
+deployment:
+  # ------------------------------------------------------------
+  # Pod Replicas and Scheduling
+  # ------------------------------------------------------------
+  replicas: 2
+  nodeSelector:
+    node-role.kubernetes.io/worker: "true"
+  tolerations: []
+
+# ------------------------------------------------------------
+# Additional Command-Line Arguments
+# ------------------------------------------------------------
+additionalArguments:
+  - "--entrypoints.web.address=:80"
+  - "--entrypoints.websecure.address=:443"
+  - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
+  - "--entrypoints.web.http.redirections.entrypoint.permanent=true"
+  - "--api.dashboard=true"
+  - "--log.level=INFO"
+  - "--accesslog=true"
+  - "--accesslog.fields.headers.defaultmode=keep"
+
+# ------------------------------------------------------------
+# Ports Configuration
+# ------------------------------------------------------------
+ports:
+  web:
+    port: 80
+    exposedPort: 80
+    protocol: TCP
+    expose:
+      default: true
+
+  websecure:
+    port: 443
+    exposedPort: 443
+    protocol: TCP
+    expose:
+      default: true
+    tls:
+      enabled: true
+
+# ------------------------------------------------------------
+# Service (LoadBalancer Configuration)
+# ------------------------------------------------------------
+service:
+  enabled: true
+  type: LoadBalancer
+  spec:
+    loadBalancerIP: 192.168.10.241
+    externalTrafficPolicy: Local
+
+# ------------------------------------------------------------
+# Logging Configuration
+# ------------------------------------------------------------
+logs:
+  general:
+    level: DEBUG
+
+  access:
+    enabled: true
+    fields:
+      general:
+        defaultmode: keep
+      headers:
+        defaultmode: keep

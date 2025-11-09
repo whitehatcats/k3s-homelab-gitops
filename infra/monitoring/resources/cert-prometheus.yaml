@@ -1,0 +1,41 @@
+# ============================================================
+# Certificate - Prometheus (Let's Encrypt via Vault Issuer)
+# ============================================================
+
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: prometheus-tls
+  namespace: monitoring
+
+spec:
+  # ------------------------------------------------------------
+  # Secret Output
+  # ------------------------------------------------------------
+  secretName: prometheus-tls
+
+  # ------------------------------------------------------------
+  # Issuer Reference
+  # ------------------------------------------------------------
+  issuerRef:
+    name: letsencrypt-vault-issuer
+    kind: ClusterIssuer
+
+  # ------------------------------------------------------------
+  # Private Key Management
+  # ------------------------------------------------------------
+  privateKey:
+    rotationPolicy: Always
+
+  # ------------------------------------------------------------
+  # Domain Configuration
+  # ------------------------------------------------------------
+  commonName: prometheus.kub.techcats.org
+  dnsNames:
+    - prometheus.kub.techcats.org
+
+  # ------------------------------------------------------------
+  # Renewal and Duration
+  # ------------------------------------------------------------
+  duration: 2160h     # 90 days
+  renewBefore: 360h   # renew 15 days before expiry

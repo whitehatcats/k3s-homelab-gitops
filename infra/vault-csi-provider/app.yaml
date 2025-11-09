@@ -1,0 +1,54 @@
+# ============================================================
+# Argo CD Application - Vault CSI Provider
+# ============================================================
+
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: vault-csi-provider
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+
+spec:
+  project: homelab
+
+  # ------------------------------------------------------------
+  # Destination Cluster
+  # ------------------------------------------------------------
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: vault
+
+  # ------------------------------------------------------------
+  # Sources
+  # ------------------------------------------------------------
+  sources:
+    # ----------------------------------------------------------
+    # 1. Helm Chart (HashiCorp Vault)
+    # ----------------------------------------------------------
+    - repoURL: https://helm.releases.hashicorp.com
+      chart: vault
+      targetRevision: 0.31.0
+      helm:
+        valueFiles:
+          - $values/infra/vault-csi-provider/values.yaml
+
+    # ----------------------------------------------------------
+    # 2. Git Repository (Values Reference)
+    # ----------------------------------------------------------
+    - repoURL: git@github.com:whitehatcats/k3s-homelab-gitops.git
+      targetRevision: main
+      ref: values
+
+  # ------------------------------------------------------------
+  # Sync Policy
+  # ------------------------------------------------------------
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - PruneLast=true
+      - DeletePropagationPolicy=foreground

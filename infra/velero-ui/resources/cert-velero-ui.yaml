@@ -1,0 +1,35 @@
+# ============================================================
+# Certificate - Velero UI (Let's Encrypt via Vault Issuer)
+# ============================================================
+
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: velero-ui-tls
+  namespace: velero
+
+spec:
+  # ------------------------------------------------------------
+  # Secret Output
+  # ------------------------------------------------------------
+  secretName: velero-ui-tls
+
+  # ------------------------------------------------------------
+  # Certificate Issuer Reference
+  # ------------------------------------------------------------
+  issuerRef:
+    name: letsencrypt-vault-issuer
+    kind: ClusterIssuer
+
+  # ------------------------------------------------------------
+  # Domain Configuration
+  # ------------------------------------------------------------
+  commonName: velero.kub.techcats.org
+  dnsNames:
+    - velero.kub.techcats.org
+
+  # ------------------------------------------------------------
+  # Renewal and Duration
+  # ------------------------------------------------------------
+  duration: 2160h       # 90 days
+  renewBefore: 360h     # renew 15 days before expiry

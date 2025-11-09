@@ -1,0 +1,37 @@
+# ============================================================
+# Argo CD Application - cilium
+# ============================================================
+
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: cilium-resources
+  namespace: argocd
+
+spec:
+  project: homelab
+
+  # ------------------------------------------------------------
+  # Source Repository
+  # ------------------------------------------------------------
+  source:
+    repoURL: git@github.com:whitehatcats/k3s-homelab-gitops.git
+    targetRevision: main
+    path: infra/cilium-resources/resources
+
+  # ------------------------------------------------------------
+  # Destination Cluster
+  # ------------------------------------------------------------
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: kube-system
+
+  # ------------------------------------------------------------
+  # Sync Policy
+  # ------------------------------------------------------------
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=false

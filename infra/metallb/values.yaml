@@ -1,0 +1,55 @@
+# ============================================================
+# MetalLB - Helm Values (GitOps Managed)
+# ============================================================
+
+# ------------------------------------------------------------
+# CRDs and RBAC
+# ------------------------------------------------------------
+crds:
+  enabled: true
+  validationFailurePolicy: Fail
+
+rbac:
+  create: true
+
+# ------------------------------------------------------------
+# Controller Configuration
+# ------------------------------------------------------------
+controller:
+  enabled: true
+  logLevel: info
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+# ------------------------------------------------------------
+# Speaker Configuration
+# ------------------------------------------------------------
+speaker:
+  enabled: true
+  logLevel: info
+  tolerateMaster: true
+
+  memberlist:
+    enabled: true
+
+  # ----------------------------------------------------------
+  # FRR (Border Gateway Protocol)
+  # ----------------------------------------------------------
+  # Disable if using Layer 2 only
+  frr:
+    enabled: false
+
+# ------------------------------------------------------------
+# Prometheus Integration (Disabled - handled externally)
+# ------------------------------------------------------------
+prometheus:
+  scrapeAnnotations: false
+  rbacPrometheus: false
+  podMonitor:
+    enabled: false
+  serviceMonitor:
+    enabled: false
+  prometheusRule:
+    enabled: false

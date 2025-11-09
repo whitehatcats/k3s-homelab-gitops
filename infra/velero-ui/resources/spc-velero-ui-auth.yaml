@@ -1,0 +1,39 @@
+# ============================================================
+# SecretProviderClass - Velero UI Authentication
+# ============================================================
+
+apiVersion: secrets-store.csi.x-k8s.io/v1
+kind: SecretProviderClass
+metadata:
+  name: velero-ui-auth
+  namespace: velero
+
+spec:
+  provider: vault
+
+  # ------------------------------------------------------------
+  # Vault Connection Settings
+  # ------------------------------------------------------------
+  parameters:
+    vaultAddress: "https://vault.vault.svc:8200"
+    vaultMountPath: "kubernetes"
+    roleName: "velero"
+    vaultTLSCaCert: "/vault/userconfig/ca/ca.crt"
+
+    # ----------------------------------------------------------
+    # Mapped Vault Secret
+    # ----------------------------------------------------------
+    objects: |
+      - objectName: "password"
+        secretPath: "kv/data/velero/ui-auth"
+        secretKey: "password"
+
+  # ------------------------------------------------------------
+  # Synced Kubernetes Secret
+  # ------------------------------------------------------------
+  secretObjects:
+    - secretName: velero-ui-auth
+      type: Opaque
+      data:
+        - objectName: "password"
+          key: password

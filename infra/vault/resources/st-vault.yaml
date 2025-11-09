@@ -1,0 +1,19 @@
+# ============================================================
+# ServersTransport - Vault Secure Connection
+# ============================================================
+
+apiVersion: traefik.io/v1alpha1
+kind: ServersTransport
+metadata:
+  name: vault-secure
+  namespace: vault
+
+spec:
+  # ------------------------------------------------------------
+  # TLS Trust Configuration
+  # ------------------------------------------------------------
+  rootCAsSecrets:
+    - vault-root-ca    # the CA that signed Vault's backend certificate
+
+  serverName: vault.vault.svc
+  insecureSkipVerify: false  # enforce full certificate verification

@@ -1,0 +1,31 @@
+# ============================================================
+# Certificate - WordPress (techcats.org)
+# ============================================================
+
+apiVersion: cert-manager.io/v1
+kind: Certificate
+
+metadata:
+  name: wordpress-tls
+  namespace: wordpress
+
+
+# ------------------------------------------------------------
+# Certificate Specification
+# ------------------------------------------------------------
+spec:
+  secretName: wordpress-tls-secret
+
+  issuerRef:
+    name: letsencrypt-vault-issuer
+    kind: ClusterIssuer
+
+  privateKey:
+    rotationPolicy: Always
+
+  commonName: techcats.org
+  dnsNames:
+    - techcats.org
+
+  duration: 2160h        # 90 days
+  renewBefore: 360h      # 15 days before expiry

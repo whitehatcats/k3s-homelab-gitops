@@ -1,0 +1,51 @@
+# ============================================================
+# Job - Sync Bitnami OCI RepoCreds (Vault CSI)
+# ============================================================
+
+apiVersion: batch/v1
+kind: Job
+
+metadata:
+  name: sync-bitnami-oci-repocreds
+  namespace: argocd
+
+
+# ------------------------------------------------------------
+# Job Specification
+# ------------------------------------------------------------
+spec:
+  template:
+    spec:
+      serviceAccountName: argocd-sa
+      restartPolicy: OnFailure
+
+
+      # --------------------------------------------------------
+      # Containers
+      # --------------------------------------------------------
+      containers:
+        - name: sync-bitnami-oci-repocreds
+          image: busybox
+          command:
+            - sh
+            - -c
+            - |
+              echo "Syncing Vault secret: bitnami-oci-repocreds..."
+              sleep 10
+              echo "Done syncing bitnami-oci-repocreds."
+          volumeMounts:
+            - name: secrets-store-bitnami-oci-repocreds
+              mountPath: /mnt/secrets-store
+              readOnly: true
+
+
+      # --------------------------------------------------------
+      # Volumes (Vault CSI)
+      # --------------------------------------------------------
+      volumes:
+        - name: secrets-store-bitnami-oci-repocreds
+          csi:
+            driver: secrets-store.csi.k8s.io
+            readOnly: true
+            volumeAttributes:
+              secretProviderClass: bitnami-oci-repocreds

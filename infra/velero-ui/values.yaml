@@ -1,0 +1,94 @@
+# ============================================================
+# Velero UI - Helm Values (Vault-Integrated)
+# ============================================================
+
+# ------------------------------------------------------------
+# General Configuration
+# ------------------------------------------------------------
+configuration:
+  logLevel: "info"
+
+  general:
+    secretPassPhrase:
+      value: ""
+      useSecret: true
+      name: "velero-ui-secret"
+      key: "pass_phrase"
+      existingSecret: "velero-ui-secret"
+
+    veleroNamespace: "velero"
+
+# ------------------------------------------------------------
+# Service Configuration
+# ------------------------------------------------------------
+service:
+  type: ClusterIP
+  port: 3000
+
+# ------------------------------------------------------------
+# Ingress (disabled - using Traefik IngressRoute instead)
+# ------------------------------------------------------------
+ingress:
+  enabled: false
+
+# ------------------------------------------------------------
+# RBAC Configuration
+# ------------------------------------------------------------
+rbac:
+  create: true
+  clusterAdministrator: true
+
+# ------------------------------------------------------------
+# CSI Volumes for Vault Secrets
+# ------------------------------------------------------------
+volumes:
+  - name: velero-ui-secret-store
+    csi:
+      driver: secrets-store.csi.k8s.io
+      readOnly: true
+      volumeAttributes:
+        secretProviderClass: velero-ui-secret
+
+  - name: velero-ui-auth-store
+    csi:
+      driver: secrets-store.csi.k8s.io
+      readOnly: true
+      volumeAttributes:
+        secretProviderClass: velero-ui-auth
+
+# ------------------------------------------------------------
+# Volume Mounts
+# ------------------------------------------------------------
+volumeMounts:
+  - name: velero-ui-secret-store
+    mountPath: /mnt/secrets-store/jwt
+    readOnly: true
+
+  - name: velero-ui-auth-store
+    mountPath: /mnt/secrets-store/auth
+    readOnly: true
+
+# ------------------------------------------------------------
+# Resource Requests and Limits
+# ------------------------------------------------------------
+resources:
+  requests:
+    cpu: 50m
+    memory: 64Mi
+  limits:
+    cpu: 200m
+    memory: 256Mi
+
+# ------------------------------------------------------------
+# Environment Variables
+# ------------------------------------------------------------
+env:
+  - name: BASIC_AUTH_ENABLED
+    value: "true"
+  - name: BASIC_AUTH_USERNAME
+    value: "admin"
+  - name: BASIC_AUTH_PASSWORD
+    valueFrom:
+      secretKeyRef:
+        name: velero-ui-auth
+        key: password

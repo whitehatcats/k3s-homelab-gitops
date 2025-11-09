@@ -1,0 +1,9 @@
+# ============================================================
+# ServiceAccount — Argo CD
+# ============================================================
+
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: argocd-sa
+  namespace: argocd

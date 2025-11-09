@@ -1,0 +1,16 @@
+# ============================================================
+# Kustomization - Bitnami OCI Repository Credentials
+# ============================================================
+
+resources:
+  # ------------------------------------------------------------
+  # SecretProviderClasses
+  # ------------------------------------------------------------
+  - spc-bitnami-oci-repocred.yaml
+  - spc-bitnami-oci.yaml
+
+  # ------------------------------------------------------------
+  # Sync Jobs (Secret Sync to Kubernetes)
+  # ------------------------------------------------------------
+  - job-bitnami-oci-repocred.yaml
+  - job-bitnami-oci.yaml

@@ -1,0 +1,18 @@
+# ============================================================
+# Kustomization - Argo CD Resources
+# ============================================================
+
+resources:
+  # ------------------------------------------------------------
+  # Core Application and Service Account
+  # ------------------------------------------------------------
+  - cert-argocd.yaml
+  - sa-argocd.yaml
+  - ir-argocd.yaml
+  - rbac-argocd.yaml
+
+  # ------------------------------------------------------------
+  # Repository Credentials (Vault Synced)
+  # ------------------------------------------------------------
+  - repo-bitnami-oci/
+  - repo-whitehatcats/

@@ -1,0 +1,31 @@
+# ============================================================
+# Certificate — Argo CD TLS (via cert-manager)
+# ============================================================
+
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: argocd-tls
+  namespace: argocd
+
+spec:
+  # ------------------------------------------------------------
+  # Secret and Issuer Reference
+  # ------------------------------------------------------------
+  secretName: argocd-tls-secret
+  issuerRef:
+    name: letsencrypt-vault-issuer
+    kind: ClusterIssuer
+
+  # ------------------------------------------------------------
+  # Domain Configuration
+  # ------------------------------------------------------------
+  commonName: argocd.kub.techcats.org
+  dnsNames:
+    - argocd.kub.techcats.org
+
+  # ------------------------------------------------------------
+  # Certificate Lifecycle
+  # ------------------------------------------------------------
+  duration: 2160h          # 90 days
+  renewBefore: 360h        # 15 days before expiry

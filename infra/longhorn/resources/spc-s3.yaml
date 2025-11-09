@@ -1,0 +1,57 @@
+# ============================================================
+# SecretProviderClass — Longhorn S3 Credentials (Vault)
+# ============================================================
+
+apiVersion: secrets-store.csi.x-k8s.io/v1
+kind: SecretProviderClass
+metadata:
+  name: longhorn-s3-spc
+  namespace: longhorn-system
+
+spec:
+  # ------------------------------------------------------------
+  # Provider Configuration
+  # ------------------------------------------------------------
+  provider: vault
+
+  # ------------------------------------------------------------
+  # Vault Connection Parameters
+  # ------------------------------------------------------------
+  parameters:
+    vaultAddress: "https://vault.vault.svc:8200"
+    vaultMountPath: "kubernetes"        # must match your Vault auth path
+    roleName: "longhorn"                # must exist in Vault
+    vaultTLSCaCert: "/vault/userconfig/ca/ca.crt"
+
+    # ------------------------------------------------------------
+    # Vault Secrets Mapping
+    # ------------------------------------------------------------
+    objects: |
+      - objectName: "AWS_ENDPOINTS"
+        secretPath: "kv/data/longhorn/s3"
+        secretKey: "AWS_ENDPOINTS"
+      - objectName: "AWS_ACCESS_KEY_ID"
+        secretPath: "kv/data/longhorn/s3"
+        secretKey: "AWS_ACCESS_KEY_ID"
+      - objectName: "AWS_SECRET_ACCESS_KEY"
+        secretPath: "kv/data/longhorn/s3"
+        secretKey: "AWS_SECRET_ACCESS_KEY"
+      - objectName: "AWS_REGION"
+        secretPath: "kv/data/longhorn/s3"
+        secretKey: "AWS_REGION"
+
+  # ------------------------------------------------------------
+  # Kubernetes Secret Sync
+  # ------------------------------------------------------------
+  secretObjects:
+    - secretName: longhorn-s3-secret
+      type: Opaque
+      data:
+        - objectName: "AWS_ENDPOINTS"
+          key: AWS_ENDPOINTS
+        - objectName: "AWS_ACCESS_KEY_ID"
+          key: AWS_ACCESS_KEY_ID
+        - objectName: "AWS_SECRET_ACCESS_KEY"
+          key: AWS_SECRET_ACCESS_KEY
+        - objectName: "AWS_REGION"
+          key: AWS_REGION

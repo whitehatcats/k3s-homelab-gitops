@@ -1,0 +1,23 @@
+# ============================================================
+# IngressRoute - WordPress (TLS)
+# ============================================================
+
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+
+metadata:
+  name: wordpress
+  namespace: wordpress
+
+
+# ------------------------------------------------------------
+# IngressRoute Specification
+# ------------------------------------------------------------
+spec:
+  entryPoints:
+    - websecure
+
+  routes: []
+  
+  tls:
+    secretName: wordpress-tls-secret

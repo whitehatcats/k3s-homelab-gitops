@@ -1,0 +1,62 @@
+# ============================================================
+# Argo CD Application - Velero UI
+# ============================================================
+
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: velero-ui
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+
+spec:
+  project: homelab
+
+  # ------------------------------------------------------------
+  # Destination Cluster
+  # ------------------------------------------------------------
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: velero
+
+  # ------------------------------------------------------------
+  # Sources
+  # ------------------------------------------------------------
+  sources:
+    # ----------------------------------------------------------
+    # 1. Git Repository - Values Reference
+    # ----------------------------------------------------------
+    - repoURL: git@github.com:whitehatcats/k3s-homelab-gitops.git
+      targetRevision: main
+      ref: values
+
+    # ----------------------------------------------------------
+    # 2. Velero UI Helm Chart (otwld)
+    # ----------------------------------------------------------
+    - repoURL: https://otwld.github.io/helm-charts
+      chart: velero-ui
+      targetRevision: 0.14.0  # latest stable version
+      helm:
+        valueFiles:
+          - $values/infra/velero-ui/values.yaml
+
+    # ----------------------------------------------------------
+    # 3. Local Overlay (IngressRoute, Certificate, SPC, etc.)
+    # ----------------------------------------------------------
+    - repoURL: git@github.com:whitehatcats/k3s-homelab-gitops.git
+      targetRevision: main
+      path: infra/velero-ui/resources
+
+  # ------------------------------------------------------------
+  # Sync Policy
+  # ------------------------------------------------------------
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - PruneLast=true
+      - Validate=false
+      - DeletePropagationPolicy=foreground

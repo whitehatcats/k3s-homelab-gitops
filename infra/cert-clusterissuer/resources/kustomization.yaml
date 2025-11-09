@@ -1,0 +1,7 @@
+# ============================================================
+# Resources | cert-clusterissuer
+# ============================================================
+
+resources:
+  - spc-cloudflare.yaml
+  - ci-letsencrypt-dns01.yaml

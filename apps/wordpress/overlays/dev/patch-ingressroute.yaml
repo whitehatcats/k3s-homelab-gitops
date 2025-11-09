@@ -1,0 +1,15 @@
+# ============================================================
+# Patch - IngressRoute (Development)
+# ============================================================
+
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: wordpress
+spec:
+  routes:
+    - match: Host(`development.techcats.org`)
+      kind: Rule
+      services:
+        - name: wordpress-dev
+          port: 80

@@ -1,0 +1,115 @@
+# ============================================================
+# WordPress - Helm Values
+# ============================================================
+
+
+# ------------------------------------------------------------
+# WordPress Configuration
+# ------------------------------------------------------------
+wordpressUsername: ""
+wordpressPassword: ""
+wordpressEmail: ""
+wordpressBlogName: ""
+existingSecret: vault-wp-admin-secret
+
+
+# ------------------------------------------------------------
+# Ingress
+# ------------------------------------------------------------
+ingress:
+  enabled: false
+
+
+# ------------------------------------------------------------
+# Service Configuration
+# ------------------------------------------------------------
+service:
+  type: ClusterIP
+
+
+# ------------------------------------------------------------
+# Database Configuration
+# ------------------------------------------------------------
+mariadb:
+  enabled: false
+
+externalDatabase:
+  host: mariadb.mariadb.svc.cluster.local
+  port: 3306
+  user: wordpress
+  database: wordpress
+  password: ""
+  existingSecret: vault-wp-db-secret
+
+
+# ------------------------------------------------------------
+# Persistence
+# ------------------------------------------------------------
+persistence:
+  enabled: true
+  existingClaim: wordpress-pvc
+  storageClass: longhorn-retain
+  accessModes:
+    - ReadWriteOnce
+  size: 4Gi
+
+
+# ------------------------------------------------------------
+# Volume Permissions
+# ------------------------------------------------------------
+volumePermissions:
+  enabled: true
+  image:
+    repository: bitnami/os-shell
+    tag: latest
+    pullPolicy: IfNotPresent
+  containerSecurityContext:
+    runAsUser: 0
+
+
+# ------------------------------------------------------------
+# Security Contexts
+# ------------------------------------------------------------
+podSecurityContext:
+  enabled: true
+  fsGroup: 1001
+  fsGroupChangePolicy: Always
+
+containerSecurityContext:
+  enabled: true
+  runAsNonRoot: true
+  runAsUser: 1001
+  runAsGroup: 1001
+  readOnlyRootFilesystem: true
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop: ["ALL"]
+
+
+# ------------------------------------------------------------
+# Resources
+# ------------------------------------------------------------
+resources:
+  requests:
+    cpu: 100m
+    memory: 256Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi
+
+
+# ------------------------------------------------------------
+# CSI Vault Secrets Integration
+# ------------------------------------------------------------
+extraVolumes:
+  - name: csi-vault-secrets
+    csi:
+      driver: secrets-store.csi.k8s.io
+      readOnly: true
+      volumeAttributes:
+        secretProviderClass: vault-wp-secrets
+
+extraVolumeMounts:
+  - name: csi-vault-secrets
+    mountPath: /mnt/secrets-store
+    readOnly: true

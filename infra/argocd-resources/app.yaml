@@ -1,0 +1,37 @@
+# ============================================================
+# Argo CD Application - argocd-resources
+# ============================================================
+
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: argocd-resources
+  namespace: argocd
+
+spec:
+  project: homelab
+
+  # ------------------------------------------------------------
+  # Source Repository
+  # ------------------------------------------------------------
+  source:
+    repoURL: git@github.com:whitehatcats/k3s-homelab-gitops.git
+    targetRevision: main
+    path: infra/argocd-resources/resources
+
+  # ------------------------------------------------------------
+  # Destination Cluster
+  # ------------------------------------------------------------
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argocd
+
+  # ------------------------------------------------------------
+  # Sync Policy
+  # ------------------------------------------------------------
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=false

@@ -1,0 +1,68 @@
+# ============================================================
+# Argo CD Application - MariaDB
+# ============================================================
+
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+
+metadata:
+  name: mariadb
+  namespace: argocd
+
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+
+  annotations:
+    argocd.argoproj.io/repo-type: helm
+
+
+# ------------------------------------------------------------
+# Application Specification
+# ------------------------------------------------------------
+spec:
+  project: homelab
+
+
+  # ----------------------------------------------------------
+  # Destination
+  # ----------------------------------------------------------
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: mariadb
+
+
+  # ----------------------------------------------------------
+  # Sources (Helm Chart + GitOps Repo)
+  # ----------------------------------------------------------
+  sources:
+    # Helm chart source (Bitnami registry)
+    - repoURL: registry-1.docker.io/bitnamicharts
+      chart: mariadb
+      targetRevision: 23.2.1
+      helm:
+        valueFiles:
+          - $values/apps/mariadb/values.yaml
+
+    # Shared GitOps values reference
+    - repoURL: git@github.com:whitehatcats/k3s-homelab-gitops.git
+      targetRevision: main
+      ref: values
+
+    # App-specific overlay path
+    - repoURL: git@github.com:whitehatcats/k3s-homelab-gitops.git
+      targetRevision: main
+      path: apps/mariadb
+
+
+  # ----------------------------------------------------------
+  # Sync Policy
+  # ----------------------------------------------------------
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+
+    syncOptions:
+      - CreateNamespace=true
+      - PruneLast=true
+      - ApplyOutOfSyncOnly=true

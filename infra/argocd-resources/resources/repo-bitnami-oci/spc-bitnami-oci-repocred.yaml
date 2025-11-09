@@ -1,0 +1,68 @@
+# ============================================================
+# SecretProviderClass - Bitnami OCI Repository Credentials
+# ============================================================
+
+apiVersion: secrets-store.csi.x-k8s.io/v1
+kind: SecretProviderClass
+metadata:
+  name: bitnami-oci-repocreds
+  namespace: argocd
+
+spec:
+  provider: vault
+
+  # ------------------------------------------------------------
+  # Vault Connection Settings
+  # ------------------------------------------------------------
+  parameters:
+    vaultAddress: "https://vault.vault.svc:8200"
+    vaultMountPath: "kubernetes"
+    roleName: argocd
+    vaultTLSCaCert: "/vault/userconfig/ca/ca.crt"
+
+    # ----------------------------------------------------------
+    # Mapped Vault Secrets
+    # ----------------------------------------------------------
+    objects: |
+      - objectName: "enableOCI"
+        secretPath: "kv/data/argocd/bitnami-oci"
+        secretKey: "enableOCI"
+      - objectName: "name"
+        secretPath: "kv/data/argocd/bitnami-oci"
+        secretKey: "name"
+      - objectName: "password"
+        secretPath: "kv/data/argocd/bitnami-oci"
+        secretKey: "password"
+      - objectName: "type"
+        secretPath: "kv/data/argocd/bitnami-oci"
+        secretKey: "type"
+      - objectName: "url"
+        secretPath: "kv/data/argocd/bitnami-oci"
+        secretKey: "url"
+      - objectName: "username"
+        secretPath: "kv/data/argocd/bitnami-oci"
+        secretKey: "username"
+
+  # ------------------------------------------------------------
+  # Synced Kubernetes Secret
+  # ------------------------------------------------------------
+  secretObjects:
+    - secretName: bitnami-oci-repocreds
+      type: Opaque
+      labels:
+        argocd.argoproj.io/secret-type: repo-creds
+      annotations:
+        synced-from: vault
+      data:
+        - objectName: "enableOCI"
+          key: enableOCI
+        - objectName: "name"
+          key: name
+        - objectName: "password"
+          key: password
+        - objectName: "type"
+          key: type
+        - objectName: "url"
+          key: url
+        - objectName: "username"
+          key: username

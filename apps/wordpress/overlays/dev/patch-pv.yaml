@@ -1,0 +1,11 @@
+# ============================================================
+# JSON 6902 Patch - PersistentVolume (Development)
+# ============================================================
+
+- op: replace
+  path: /metadata/name
+  value: wordpress-pv-dev
+
+- op: replace
+  path: /spec/csi/volumeHandle
+  value: wordpress-dev

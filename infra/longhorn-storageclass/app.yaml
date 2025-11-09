@@ -1,0 +1,44 @@
+# ============================================================
+# Longhorn StorageClass (Argo CD Application)
+# ============================================================
+
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: longhorn-storageclass
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+
+spec:
+  project: homelab
+
+  # ============================================================
+  # Destination
+  # ============================================================
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: longhorn-system
+
+  # ============================================================
+  # Source
+  # ============================================================
+  source:
+    repoURL: git@github.com:whitehatcats/k3s-homelab-gitops.git
+    targetRevision: main
+    path: infra/longhorn-storageclass
+    directory:
+      recurse: true
+
+  # ============================================================
+  # Sync Policy
+  # ============================================================
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ApplyOutOfSyncOnly=true
+      - PruneLast=true
+      - DeletePropagationPolicy=foreground

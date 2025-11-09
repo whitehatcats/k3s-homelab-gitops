@@ -1,0 +1,19 @@
+
+resources:
+  - argocd-resources/app.yaml
+  - metallb/app.yaml
+  - kube-vip/app.yaml
+  - cert-manager/app.yaml
+  - vault/app.yaml
+  - csi-driver/app.yaml
+  - vault-csi-provider/app.yaml
+  - traefik/app.yaml
+  - longhorn/app.yaml
+  - longhorn-storageclass/app.yaml
+  - monitoring-crds/app.yaml
+  - monitoring/app.yaml
+  - velero/app.yaml
+  - velero-ui/app.yaml
+  - snapshot-controller/app.yaml
+  - cilium-resources/app.yaml
+  - cert-clusterissuer/app.yaml

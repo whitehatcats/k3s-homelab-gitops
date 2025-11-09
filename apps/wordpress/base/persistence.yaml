@@ -1,0 +1,47 @@
+# ============================================================
+# PersistentVolume - WordPress
+# ============================================================
+
+apiVersion: v1
+kind: PersistentVolume
+
+metadata:
+  name: wordpress-pv
+
+spec:
+  capacity:
+    storage: 4Gi
+
+  accessModes:
+    - ReadWriteOnce
+
+  storageClassName: longhorn-retain
+  persistentVolumeReclaimPolicy: Retain
+
+  csi:
+    driver: driver.longhorn.io
+    volumeHandle: wordpress
+---
+
+# ============================================================
+# PersistentVolumeClaim - WordPress
+# ============================================================
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+
+metadata:
+  name: wordpress-pvc
+  namespace: wordpress
+
+spec:
+  accessModes:
+    - ReadWriteOnce
+
+  storageClassName: longhorn-retain
+
+  resources:
+    requests:
+      storage: 4Gi
+
+  volumeName: wordpress-pv

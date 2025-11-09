@@ -1,0 +1,31 @@
+# ============================================================
+# Certificate — Traefik TLS (via cert-manager)
+# ============================================================
+
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: traefik-tls
+  namespace: traefik
+
+spec:
+  # ------------------------------------------------------------
+  # Secret and Issuer Reference
+  # ------------------------------------------------------------
+  secretName: traefik-tls-secret
+  issuerRef:
+    name: letsencrypt-vault-issuer
+    kind: ClusterIssuer
+
+  # ------------------------------------------------------------
+  # Domain Configuration
+  # ------------------------------------------------------------
+  commonName: traefik.kub.techcats.org
+  dnsNames:
+    - traefik.kub.techcats.org
+
+  # ------------------------------------------------------------
+  # Certificate Lifecycle
+  # ------------------------------------------------------------
+  duration: 2160h          # 90 days
+  renewBefore: 360h        # 15 days before expiry

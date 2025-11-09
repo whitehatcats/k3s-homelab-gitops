@@ -1,0 +1,42 @@
+# ============================================================
+# Argo CD Application - Monitoring CRDs (Prometheus Operator)
+# ============================================================
+
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: monitoring-crds
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
+
+spec:
+  project: homelab
+
+  # ------------------------------------------------------------
+  # Destination Cluster
+  # ------------------------------------------------------------
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: monitoring
+
+  # ------------------------------------------------------------
+  # Source Repository
+  # ------------------------------------------------------------
+  source:
+    repoURL: https://github.com/prometheus-operator/prometheus-operator.git
+    targetRevision: v0.86.0
+    path: example/prometheus-operator-crd
+
+  # ------------------------------------------------------------
+  # Sync Policy
+  # ------------------------------------------------------------
+  syncPolicy:
+    automated:
+      prune: false       # keep CRDs even if app is removed
+      selfHeal: false    # CRDs should remain static
+    syncOptions:
+      - ApplyOutOfSyncOnly=true  # avoid unnecessary re-applies
+      - Replace=true             # safer CRD updates if already present

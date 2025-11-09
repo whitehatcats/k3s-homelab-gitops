@@ -1,0 +1,63 @@
+# ============================================================
+# Argo CD Application - MetalLB (Helm + Custom Resources)
+# ============================================================
+
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: metallb
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+
+spec:
+  project: homelab
+
+  # ------------------------------------------------------------
+  # Destination Cluster
+  # ------------------------------------------------------------
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: metallb-system
+
+  # ------------------------------------------------------------
+  # Sources
+  # ------------------------------------------------------------
+  sources:
+    # ----------------------------------------------------------
+    # 1. Helm Chart (Official MetalLB Repository)
+    # ----------------------------------------------------------
+    - repoURL: https://metallb.github.io/metallb
+      chart: metallb
+      targetRevision: 0.15.2  # verify latest stable release
+      helm:
+        releaseName: metallb
+        valueFiles:
+          - $values/infra/metallb/values.yaml
+
+    # ----------------------------------------------------------
+    # 2. Git Repository (Values Reference)
+    # ----------------------------------------------------------
+    - repoURL: git@github.com:whitehatcats/k3s-homelab-gitops.git
+      targetRevision: main
+      ref: values
+
+    # ----------------------------------------------------------
+    # 3. Git Repository (Custom MetalLB Resources)
+    # ----------------------------------------------------------
+    - repoURL: git@github.com:whitehatcats/k3s-homelab-gitops.git
+      targetRevision: main
+      path: infra/metallb/resources
+
+  # ------------------------------------------------------------
+  # Sync Policy
+  # ------------------------------------------------------------
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - PruneLast=true
+      - ApplyOutOfSyncOnly=true
+      - DeletePropagationPolicy=foreground

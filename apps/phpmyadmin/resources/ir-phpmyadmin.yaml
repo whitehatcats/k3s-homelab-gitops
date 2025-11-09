@@ -1,0 +1,33 @@
+# ============================================================
+# phpMyAdmin IngressRoute (via Traefik)
+# TechCats Homelab
+# ============================================================
+
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: phpmyadmin
+  namespace: phpmyadmin
+
+spec:
+  # ------------------------------------------------------------
+  # EntryPoints
+  # ------------------------------------------------------------
+  entryPoints:
+    - websecure
+
+  # ------------------------------------------------------------
+  # Routes
+  # ------------------------------------------------------------
+  routes:
+    - match: Host(`phpmyadmin.kub.techcats.org`)
+      kind: Rule
+      services:
+        - name: phpmyadmin
+          port: 80
+
+  # ------------------------------------------------------------
+  # TLS Configuration
+  # ------------------------------------------------------------
+  tls:
+    secretName: phpmyadmin-tls-secret

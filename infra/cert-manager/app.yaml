@@ -1,0 +1,55 @@
+# ============================================================
+# Argo CD Application — cert-manager
+# ============================================================
+
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: cert-manager
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+
+spec:
+  # ------------------------------------------------------------
+  # Project and Destination
+  # ------------------------------------------------------------
+  project: homelab
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: cert-manager
+
+  # ------------------------------------------------------------
+  # Sources (Helm Chart + Git Values + Local Resources)
+  # ------------------------------------------------------------
+  sources:
+    # Git repository providing Helm values (multi-source ref)
+    - repoURL: git@github.com:whitehatcats/k3s-homelab-gitops.git
+      targetRevision: main
+      ref: values
+
+    # Jetstack Helm chart
+    - repoURL: https://charts.jetstack.io
+      chart: cert-manager
+      targetRevision: v1.19.1
+      helm:
+        valueFiles:
+          - $values/infra/cert-manager/values.yaml
+
+    # Local overlay for custom manifests (ClusterIssuer, RBAC, etc.)
+    #- repoURL: git@github.com:whitehatcats/k3s-homelab-gitops.git
+      #targetRevision: main
+      #path: infra/cert-manager
+
+  # ------------------------------------------------------------
+  # Sync Policy
+  # ------------------------------------------------------------
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - PruneLast=true
+      - Validate=false
+      - DeletePropagationPolicy=foreground

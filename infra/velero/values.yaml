@@ -1,0 +1,100 @@
+# ============================================================
+# Velero (Vault CSI + MinIO API HTTPS)
+# ============================================================
+
+image:
+  tag: v1.17.0
+
+# ------------------------------------------------------------
+# RBAC and Service Account
+# ------------------------------------------------------------
+rbac:
+  clusterAdministrator: true
+
+serviceAccount:
+  server:
+    name: velero
+
+# ------------------------------------------------------------
+# Metrics Integration
+# ------------------------------------------------------------
+metrics:
+  serviceMonitor:
+    enabled: true
+    additionalLabels:
+      release: kube-prometheus-stack
+
+# ------------------------------------------------------------
+# Main Configuration
+# ------------------------------------------------------------
+configuration:
+  features: EnableCSI
+
+  backupStorageLocation:
+    - name: default
+      provider: aws
+      bucket: velero
+      default: true
+      accessMode: ReadWrite
+      credential:
+        name: velero-s3-secret
+        key: cloud
+      config:
+        region: us-east-1
+        s3ForcePathStyle: true
+        s3Url: https://minio-api.techcats.org
+        publicUrl: https://minio-api.techcats.org
+        insecureSkipTLSVerify: false
+
+  volumeSnapshotLocation:
+    - name: default
+      provider: csi
+      default: true
+      config:
+        region: us-east-1
+
+  uploaderType: kopia
+  defaultRepoMaintainFrequency: 24h
+  repositoryMaintenanceJob:
+    global:
+      keepLatestMaintenanceJobs: 3
+
+credentials:
+  existingSecret: velero-s3-secret
+
+# ------------------------------------------------------------
+# Vault CSI Integration
+# ------------------------------------------------------------
+extraVolumes:
+  - name: secrets-store
+    csi:
+      driver: secrets-store.csi.k8s.io
+      readOnly: true
+      volumeAttributes:
+        secretProviderClass: velero-s3-spc
+
+extraVolumeMounts:
+  - name: secrets-store
+    mountPath: /mnt/secrets-store
+    readOnly: true
+
+# ------------------------------------------------------------
+# Automated Backup Schedule
+# ------------------------------------------------------------
+schedules:
+  daily-cluster-backup:
+    schedule: "0 3 * * *"
+    template:
+      ttl: "168h"
+      includedNamespaces:
+        - "*"
+
+# ------------------------------------------------------------
+# Plugins
+# ------------------------------------------------------------
+initContainers:
+  - name: velero-plugin-for-aws
+    image: velero/velero-plugin-for-aws:v1.13.0
+    volumeMounts:
+      - mountPath: /target
+        name: plugins

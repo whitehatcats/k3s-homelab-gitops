@@ -1,0 +1,178 @@
+# ============================================================
+# Vault | TLS Enabled, HA with Raft Storage
+# ============================================================
+
+global:
+  enabled: true
+  tlsDisable: false
+
+
+# ------------------------------------------------------------
+# Vault Agent Injector
+# ------------------------------------------------------------
+injector:
+  enabled: false  # Disable the Vault Agent Injector
+
+
+# ------------------------------------------------------------
+# Vault Server Configuration
+# ------------------------------------------------------------
+server:
+
+  # ----------------------------------------------------------
+  # Resource Tuning
+  # ----------------------------------------------------------
+  resources:
+    requests:
+      cpu: 250m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+  # ----------------------------------------------------------
+  # Logging
+  # ----------------------------------------------------------
+  logLevel: info
+  logFormat: json
+
+  # ----------------------------------------------------------
+  # Extra Environment Variables
+  # ----------------------------------------------------------
+  extraEnvironmentVars:
+    VAULT_CACERT: /vault/userconfig/tls/vault-internal-tls/ca.crt
+    VAULT_TLSCERT: /vault/userconfig/tls/vault-internal-tls/tls.crt
+    VAULT_TLSKEY: /vault/userconfig/tls/vault-internal-tls/tls.key
+
+  # ----------------------------------------------------------
+  # TLS Certificates (mounted from cert-manager secret)
+  # ----------------------------------------------------------
+  extraVolumes:
+    - type: secret
+      name: vault-internal-tls
+      path: /vault/userconfig/tls
+
+    # Optionally mount Vault Root CA to share trust with CSI
+    # - type: secret
+    #   name: vault-root-ca
+    #   path: /vault/userconfig/ca
+
+  # ----------------------------------------------------------
+  # Persistent Storage Configuration
+  # ----------------------------------------------------------
+  dataStorage:
+    enabled: true
+    size: 10Gi
+    storageClass: longhorn-retain   # Use Retain policy StorageClass
+    accessMode: ReadWriteOnce
+
+  # ----------------------------------------------------------
+  # Probes (disabled for HTTPS setup)
+  # ----------------------------------------------------------
+  readinessProbe:
+    enabled: false
+  livenessProbe:
+    enabled: false
+
+  # ----------------------------------------------------------
+  # High Availability (Raft Integrated Storage)
+  # ----------------------------------------------------------
+  ha:
+    enabled: true
+    replicas: 3
+    raft:
+      enabled: true
+      setNodeId: true
+      config: |
+        ui = true
+        cluster_name = "vault-cluster"
+
+        api_addr     = "https://$(HOSTNAME).vault-internal.vault.svc.cluster.local:8200"
+        cluster_addr = "https://$(HOSTNAME).vault-internal.vault.svc.cluster.local:8201"
+
+        listener "tcp" {
+          address = "[::]:8200"
+          cluster_address = "[::]:8201"
+          tls_cert_file = "/vault/userconfig/tls/vault-internal-tls/tls.crt"
+          tls_key_file  = "/vault/userconfig/tls/vault-internal-tls/tls.key"
+          tls_client_ca_file = "/vault/userconfig/tls/vault-internal-tls/ca.crt"
+
+        }
+
+        storage "raft" {
+          path = "/vault/data"
+
+          retry_join {
+            leader_api_addr = "https://vault-0.vault-internal.vault.svc.cluster.local:8200"
+            leader_ca_cert_file = "/vault/userconfig/tls/vault-internal-tls/ca.crt"
+            leader_client_cert_file = "/vault/userconfig/tls/vault-internal-tls/tls.crt"
+            leader_client_key_file  = "/vault/userconfig/tls/vault-internal-tls/tls.key"
+          }
+          retry_join {
+            leader_api_addr = "https://vault-1.vault-internal.vault.svc.cluster.local:8200"
+            leader_ca_cert_file = "/vault/userconfig/tls/vault-internal-tls/ca.crt"
+            leader_client_cert_file = "/vault/userconfig/tls/vault-internal-tls/tls.crt"
+            leader_client_key_file  = "/vault/userconfig/tls/vault-internal-tls/tls.key"
+          }
+          retry_join {
+            leader_api_addr = "https://vault-2.vault-internal.vault.svc.cluster.local:8200"
+            leader_ca_cert_file = "/vault/userconfig/tls/vault-internal-tls/ca.crt"
+            leader_client_cert_file = "/vault/userconfig/tls/vault-internal-tls/tls.crt"
+            leader_client_key_file  = "/vault/userconfig/tls/vault-internal-tls/tls.key"
+          }
+        }
+        
+        disable_mlock = true
+        service_registration "kubernetes" {}
+        telemetry {
+          prometheus_retention_time = "30s"
+          disable_hostname = true
+        }
+
+
+# ------------------------------------------------------------
+# CSI Provider Configuration
+# ------------------------------------------------------------
+csi:
+  enabled: false
+
+
+# ============================================================
+# Prometheus Telemetry Integration
+# ============================================================
+
+serverTelemetry:
+  serviceMonitor:
+    # ------------------------------------------------------------
+    # Enable ServiceMonitor for Vault Telemetry
+    # ------------------------------------------------------------
+    enabled: true
+    interval: 30s
+    scrapeTimeout: 10s
+
+    # ------------------------------------------------------------
+    # TLS Configuration
+    # ------------------------------------------------------------
+    tlsConfig:
+      insecureSkipVerify: false   # Vault uses self-signed certs
+      serverName: vault.vault.svc
+      ca:
+        secret:
+          name: vault-metrics-client
+          key: ca.crt
+
+    # ------------------------------------------------------------
+    # Authentication
+    # ------------------------------------------------------------
+    authorization:
+      credentials:
+        name: prometheus-token   # name of the Secret synced by CSI
+        key: token               # key inside the Secret
+
+    # ------------------------------------------------------------
+    # Label Selector for Prometheus Operator
+    # ------------------------------------------------------------
+    selectors:
+      release: prometheus
+
+

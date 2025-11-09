@@ -1,0 +1,25 @@
+apiVersion: secrets-store.csi.x-k8s.io/v1
+kind: SecretProviderClass
+metadata:
+  name: vault-wp-secrets
+spec:
+  parameters:
+    roleName: wordpress-prod
+    objects: |
+      # ---- WordPress site meta (PROD) ----
+      - objectName: "wordpress-username"
+        secretPath: "kv/data/wordpress-prod/site"
+        secretKey: "username"
+      - objectName: "wordpress-password"
+        secretPath: "kv/data/wordpress-prod/site"
+        secretKey: "password"
+      - objectName: "wordpress-email"
+        secretPath: "kv/data/wordpress-prod/site"
+        secretKey: "email"
+      - objectName: "wordpress-blog-name"
+        secretPath: "kv/data/wordpress-prod/site"
+        secretKey: "blogName"
+      # ---- External MariaDB (PROD) ----
+      - objectName: "mariadb-password"
+        secretPath: "kv/data/wordpress-prod/db"
+        secretKey: "password"

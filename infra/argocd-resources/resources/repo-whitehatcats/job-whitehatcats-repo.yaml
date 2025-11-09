@@ -1,0 +1,38 @@
+# ============================================================
+# Job - Sync whitehatcats GitOps Secrets
+# ============================================================
+
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: sync-whitehatcats-gitops
+  namespace: argocd
+
+spec:
+  template:
+    spec:
+      serviceAccountName: argocd-sa
+      restartPolicy: OnFailure
+
+      # ------------------------------------------------------------
+      # Secret Sync Container
+      # ------------------------------------------------------------
+      containers:
+        - name: sync
+          image: busybox
+          command: ["sh", "-c", "echo syncing secrets && sleep 10"]
+
+          volumeMounts:
+            - name: secrets-store-inline
+              mountPath: "/mnt/secrets-store"
+
+      # ------------------------------------------------------------
+      # Secrets Store CSI Volume
+      # ------------------------------------------------------------
+      volumes:
+        - name: secrets-store-inline
+          csi:
+            driver: secrets-store.csi.k8s.io
+            readOnly: true
+            volumeAttributes:
+              secretProviderClass: whitehatcats-gitops

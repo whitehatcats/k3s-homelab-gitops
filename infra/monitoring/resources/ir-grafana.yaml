@@ -1,0 +1,29 @@
+# ============================================================
+# IngressRoute - Grafana (HTTPS via Traefik)
+# ============================================================
+
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: grafana
+  namespace: monitoring
+
+spec:
+  entryPoints:
+    - websecure
+
+  # ------------------------------------------------------------
+  # Routing Rules
+  # ------------------------------------------------------------
+  routes:
+    - match: Host(`grafana.kub.techcats.org`)
+      kind: Rule
+      services:
+        - name: monitoring-grafana
+          port: 80
+
+  # ------------------------------------------------------------
+  # TLS Configuration
+  # ------------------------------------------------------------
+  tls:
+    secretName: grafana-tls

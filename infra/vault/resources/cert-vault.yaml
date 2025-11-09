@@ -1,0 +1,41 @@
+# ============================================================
+# Certificate - Vault (Let's Encrypt via Vault Issuer)
+# ============================================================
+
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: vault-tls
+  namespace: vault
+
+spec:
+  # ------------------------------------------------------------
+  # Secret Output
+  # ------------------------------------------------------------
+  secretName: vault-tls-secret
+
+  # ------------------------------------------------------------
+  # Issuer Reference
+  # ------------------------------------------------------------
+  issuerRef:
+    name: letsencrypt-vault-issuer
+    kind: ClusterIssuer
+
+  # ------------------------------------------------------------
+  # Private Key Management
+  # ------------------------------------------------------------
+  privateKey:
+    rotationPolicy: Always
+
+  # ------------------------------------------------------------
+  # Domain Configuration
+  # ------------------------------------------------------------
+  commonName: vault.kub.techcats.org
+  dnsNames:
+    - vault.kub.techcats.org
+
+  # ------------------------------------------------------------
+  # Renewal and Duration
+  # ------------------------------------------------------------
+  duration: 2160h     # 90 days
+  renewBefore: 360h   # renew 15 days before expiry

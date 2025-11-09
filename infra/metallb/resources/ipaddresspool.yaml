@@ -1,0 +1,16 @@
+# ============================================================
+# IPAddressPool - Default MetalLB Pool (Layer 2)
+# ============================================================
+
+apiVersion: metallb.io/v1beta1
+kind: IPAddressPool
+metadata:
+  name: default-address-pool
+  namespace: metallb-system
+
+spec:
+  # ------------------------------------------------------------
+  # IP Range for LoadBalancer Services
+  # ------------------------------------------------------------
+  addresses:
+    - 192.168.10.240-192.168.10.249

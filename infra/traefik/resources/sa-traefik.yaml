@@ -1,0 +1,9 @@
+# ============================================================
+# ServiceAccount — Traefik
+# ============================================================
+
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: traefik-sa
+  namespace: traefik

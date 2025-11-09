@@ -1,0 +1,42 @@
+# ============================================================
+# SecretProviderClass — Prometheus Vault Token
+# ============================================================
+
+apiVersion: secrets-store.csi.x-k8s.io/v1
+kind: SecretProviderClass
+metadata:
+  name: vault-prometheus-token
+  namespace: vault
+
+spec:
+  # ------------------------------------------------------------
+  # Provider Configuration
+  # ------------------------------------------------------------
+  provider: vault
+
+  # ------------------------------------------------------------
+  # Vault Connection Parameters
+  # ------------------------------------------------------------
+  parameters:
+    vaultAddress: "https://vault.vault.svc:8200"
+    vaultMountPath: "kubernetes"        # matches your Vault auth mount
+    roleName: "prometheus"           # must exist in Vault
+    vaultTLSCaCert: "/vault/userconfig/ca/ca.crt"
+
+    # ------------------------------------------------------------
+    # Vault Secrets Mapping
+    # ------------------------------------------------------------
+    objects: |
+      - objectName: "token"
+        secretPath: "kv/data/prometheus"
+        secretKey: "token"
+
+  # ------------------------------------------------------------
+  # Kubernetes Secret Sync
+  # ------------------------------------------------------------
+  secretObjects:
+    - secretName: prometheus-token
+      type: Opaque
+      data:
+        - objectName: "token"
+          key: token

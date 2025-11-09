@@ -1,0 +1,12 @@
+# ============================================================
+# Longhorn ServiceAccount
+# ============================================================
+
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: longhorn-sa
+  namespace: longhorn-system
+
+  labels:
+    app.kubernetes.io/managed-by: argocd

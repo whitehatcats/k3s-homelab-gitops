@@ -1,0 +1,34 @@
+# ============================================================
+# SecretProviderClass | Cloudflare API Token (Vault)
+# ============================================================
+
+apiVersion: secrets-store.csi.x-k8s.io/v1
+kind: SecretProviderClass
+metadata:
+  name: cloudflare-api-token
+  namespace: cert-manager
+
+
+# ------------------------------------------------------------
+# Specification
+# ------------------------------------------------------------
+spec:
+  provider: vault
+
+  parameters:
+    vaultAddress: "https://vault.vault.svc:8200"
+    vaultMountPath: "kubernetes"
+    roleName: "cert-manager"
+    vaultTLSCaCert: "/vault/userconfig/ca/ca.crt"
+
+    objects: |
+      - objectName: "cloudflare_api_token"
+        secretPath: "kv/data/cert-manager/cloudflare"
+        secretKey: "api-token"
+
+  secretObjects:
+    - secretName: cloudflare-api-token-secret
+      type: Opaque
+      data:
+        - objectName: "cloudflare_api_token"
+          key: cloudflare_api_token

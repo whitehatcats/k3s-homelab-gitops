@@ -1,0 +1,18 @@
+# ============================================================
+# PersistentVolume - Grafana (Longhorn Retain)
+# ============================================================
+
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: grafana
+spec:
+  capacity:
+    storage: 5Gi
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: longhorn-retain
+  persistentVolumeReclaimPolicy: Retain
+  csi:
+    driver: driver.longhorn.io
+    volumeHandle: grafana

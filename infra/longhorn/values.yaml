@@ -1,0 +1,14 @@
+# ============================================================
+# ☁️ Longhorn Backup Configuration (S3 / MinIO)
+# ============================================================
+
+
+defaultBackupStore:
+  backupTarget: s3://longhorn@minio/
+  backupTargetCredentialSecret: longhorn-s3-secret
+
+# ============================================================
+# ⚙️ Pre-Upgrade Checker (disable for GitOps)
+# ============================================================
+preUpgradeChecker:
+  jobEnabled: false

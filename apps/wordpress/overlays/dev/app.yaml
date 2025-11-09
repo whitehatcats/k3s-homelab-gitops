@@ -1,0 +1,66 @@
+# ============================================================
+# Argo CD Application - WordPress (Development)
+# ============================================================
+
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+
+metadata:
+  name: wordpress-dev
+  namespace: argocd
+
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+
+
+# ------------------------------------------------------------
+# Application Specification
+# ------------------------------------------------------------
+spec:
+  project: homelab
+
+
+  # ----------------------------------------------------------
+  # Destination
+  # ----------------------------------------------------------
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: wordpress-dev
+
+
+  # ----------------------------------------------------------
+  # Sources (Helm Chart + GitOps Overlays)
+  # ----------------------------------------------------------
+  sources:
+    # WordPress Helm chart (Bitnami)
+    - repoURL: registry-1.docker.io/bitnamicharts
+      chart: wordpress
+      targetRevision: 27.1.3
+      helm:
+        valueFiles:
+          - $values/apps/wordpress/base/values.yaml
+          - $values/apps/wordpress/overlays/dev/patch-values.yaml
+
+    # Shared GitOps values reference
+    - repoURL: git@github.com:whitehatcats/k3s-homelab-gitops.git
+      targetRevision: main
+      ref: values
+
+    # App overlay path (dev environment)
+    - repoURL: git@github.com:whitehatcats/k3s-homelab-gitops.git
+      targetRevision: main
+      path: apps/wordpress/overlays/dev
+
+
+  # ----------------------------------------------------------
+  # Sync Policy
+  # ----------------------------------------------------------
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+
+    syncOptions:
+      - CreateNamespace=true
+      - PruneLast=true
+      - ApplyOutOfSyncOnly=true

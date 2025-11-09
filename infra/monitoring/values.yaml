@@ -1,0 +1,121 @@
+# ============================================================
+# Kube Prometheus Stack - Monitoring for K3s Homelab
+# Chart Version: 78.1.0 | App Version: v0.86.0
+# ============================================================
+
+global:
+  rbac:
+    create: true
+  podSecurityPolicy:
+    enabled: false
+
+# ------------------------------------------------------------
+# Grafana
+# ------------------------------------------------------------
+grafana:
+  enabled: true
+  adminUser: ""
+  adminPassword: ""  # replace later with Vault-managed secret
+
+  admin:
+    existingSecret: vault-grafana-admin
+    userKey: admin-user
+    passwordKey: admin-password
+  
+  service:
+    enabled: true
+    type: ClusterIP
+    port: 80
+
+  # Disable Helm-managed Ingress (Traefik IngressRoute is used instead)
+  ingress:
+    enabled: false
+
+  persistence:
+    enabled: true
+    type: pvc
+    accessModes: ["ReadWriteOnce"]
+    existingClaim: monitoring-grafana
+    storageClassName: longhorn-retain
+    size: 5Gi
+
+  # Fix init container crash & enforce secure context
+  initChownData:
+    enabled: false
+
+  podSecurityContext:
+    fsGroup: 472
+    fsGroupChangePolicy: Always
+
+  containerSecurityContext:
+    runAsNonRoot: true
+    runAsUser: 472
+    runAsGroup: 472
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop: ["ALL"]
+    seccompProfile:
+      type: RuntimeDefault
+
+  sidecar:
+    dashboards:
+      enabled: true
+      label: grafana_dashboard
+    datasources:
+      enabled: true
+
+# ------------------------------------------------------------
+# Prometheus
+# ------------------------------------------------------------
+prometheus:
+  enabled: true
+  prometheusSpec:
+    retention: 10d
+    scrapeInterval: 30s
+    evaluationInterval: 30s
+    serviceMonitorSelectorNilUsesHelmValues: false
+    podMonitorSelectorNilUsesHelmValues: false
+
+    storageSpec:
+      volumeClaimTemplate:
+        spec:
+          storageClassName: longhorn-retain
+          accessModes: ["ReadWriteOnce"]
+          resources:
+            requests:
+              storage: 10Gi
+
+# ------------------------------------------------------------
+# Alertmanager
+# ------------------------------------------------------------
+alertmanager:
+  enabled: false  # enable later if notifications are needed
+
+# ------------------------------------------------------------
+# Node Exporter & Kube State Metrics
+# ------------------------------------------------------------
+nodeExporter:
+  enabled: true
+
+kubeStateMetrics:
+  enabled: true
+
+# ------------------------------------------------------------
+# Default Rules (K3s Friendly)
+# ------------------------------------------------------------
+defaultRules:
+  create: true
+  rules:
+    etcd: false               # K3s uses SQLite instead of etcd
+    kubeScheduler: true
+    kubeControllerManager: true
+
+# ------------------------------------------------------------
+# Prometheus Operator
+# ------------------------------------------------------------
+prometheusOperator:
+  enabled: true
+  admissionWebhooks:
+    enabled: true
+  tls:
+    enabled: true

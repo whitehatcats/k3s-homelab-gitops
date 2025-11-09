@@ -1,0 +1,91 @@
+# ============================================================
+# MariaDB - Helm Values
+# ============================================================
+
+architecture: standalone
+
+
+# ------------------------------------------------------------
+# Authentication & Secrets
+# ------------------------------------------------------------
+auth:
+  existingSecret: vault-mariadb-secrets
+  database: wordpress_dev
+  username: wordpress
+  usePasswordFiles: false
+  forcePassword: true
+
+
+# ------------------------------------------------------------
+# Primary Pod Configuration
+# ------------------------------------------------------------
+primary:
+  podSecurityContext:
+    enabled: true
+    fsGroup: 1001
+    fsGroupChangePolicy: Always
+
+  containerSecurityContext:
+    enabled: true
+    runAsUser: 1001
+    runAsGroup: 1001
+    runAsNonRoot: true
+    readOnlyRootFilesystem: false
+
+  persistence:
+    enabled: true
+    existingClaim: mariadb-pvc
+    storageClass: longhorn-retain
+    size: 4Gi
+
+  extraVolumes:
+    - name: secrets-store
+      csi:
+        driver: secrets-store.csi.k8s.io
+        readOnly: true
+        volumeAttributes:
+          secretProviderClass: vault-mariadb-secrets
+
+  extraVolumeMounts:
+    - name: secrets-store
+      mountPath: /mnt/secrets-store
+      readOnly: true
+
+  resources:
+    requests:
+      cpu: 200m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+  service:
+    type: ClusterIP
+
+
+# ------------------------------------------------------------
+# Network Policy
+# ------------------------------------------------------------
+networkPolicy:
+  enabled: false
+  allowExternal: false
+
+
+# ------------------------------------------------------------
+# Metrics & Observability
+# ------------------------------------------------------------
+metrics:
+  enabled: false
+
+
+# ------------------------------------------------------------
+# RBAC & Permissions
+# ------------------------------------------------------------
+serviceAccount:
+  create: true
+
+rbac:
+  create: true
+
+volumePermissions:
+  enabled: true

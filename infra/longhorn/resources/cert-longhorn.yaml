@@ -1,0 +1,31 @@
+# ============================================================
+# Longhorn TLS Certificate (via cert-manager)
+# ============================================================
+
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: longhorn-tls
+  namespace: longhorn-system
+
+spec:
+  # ------------------------------------------------------------
+  # Secret and Issuer Reference
+  # ------------------------------------------------------------
+  secretName: longhorn-tls-secret
+  issuerRef:
+    name: letsencrypt-vault-issuer
+    kind: ClusterIssuer
+
+  # ------------------------------------------------------------
+  # Domain Configuration
+  # ------------------------------------------------------------
+  commonName: longhorn.kub.techcats.org
+  dnsNames:
+    - longhorn.kub.techcats.org
+
+  # ------------------------------------------------------------
+  # Certificate Lifecycle
+  # ------------------------------------------------------------
+  duration: 2160h          # 90 days
+  renewBefore: 360h        # Renew 15 days before expiry

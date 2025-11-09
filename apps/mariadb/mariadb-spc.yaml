@@ -1,0 +1,45 @@
+# ============================================================
+# SecretProviderClass - MariaDB (Vault Integration)
+# ============================================================
+
+apiVersion: secrets-store.csi.x-k8s.io/v1
+kind: SecretProviderClass
+
+metadata:
+  name: vault-mariadb-secrets
+  namespace: mariadb
+
+
+# ------------------------------------------------------------
+# Provider Configuration
+# ------------------------------------------------------------
+spec:
+  provider: vault
+
+  parameters:
+    vaultAddress: "https://vault.vault.svc:8200"
+    vaultMountPath: "kubernetes"
+    roleName: mariadb
+    vaultTLSCaCert: "/vault/userconfig/ca/ca.crt"
+
+    objects: |
+      - objectName: "mariadb-root-password"
+        secretPath: "kv/data/mariadb/credentials"
+        secretKey: "rootPassword"
+
+      - objectName: "mariadb-password"
+        secretPath: "kv/data/mariadb/credentials"
+        secretKey: "password"
+
+
+  # ----------------------------------------------------------
+  # Synced Kubernetes Secret
+  # ----------------------------------------------------------
+  secretObjects:
+    - secretName: vault-mariadb-secrets
+      type: Opaque
+      data:
+        - objectName: "mariadb-root-password"
+          key: mariadb-root-password
+        - objectName: "mariadb-password"
+          key: mariadb-password

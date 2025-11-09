@@ -1,0 +1,37 @@
+# ============================================================
+# SecretProviderClass - Velero S3 Credentials (Vault)
+# ============================================================
+
+apiVersion: secrets-store.csi.x-k8s.io/v1
+kind: SecretProviderClass
+metadata:
+  name: velero-s3-spc
+  namespace: velero
+
+spec:
+  provider: vault
+
+  # ------------------------------------------------------------
+  # Vault Connection Settings
+  # ------------------------------------------------------------
+  parameters:
+    vaultAddress: "https://vault.vault.svc:8200"
+    roleName: "velero"
+
+    # ----------------------------------------------------------
+    # Mapped Vault Secret
+    # ----------------------------------------------------------
+    objects: |
+      - objectName: "cloud"
+        secretPath: "kv/data/velero/s3"
+        secretKey: "cloud"
+
+  # ------------------------------------------------------------
+  # Synced Kubernetes Secret
+  # ------------------------------------------------------------
+  secretObjects:
+    - secretName: velero-s3-secret
+      type: Opaque
+      data:
+        - objectName: "cloud"
+          key: cloud

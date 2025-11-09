@@ -1,0 +1,12 @@
+# ============================================================
+# Patch - Certificate (Development)
+# ============================================================
+
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: wordpress-tls
+spec:
+  commonName: development.techcats.org
+  dnsNames:
+    - development.techcats.org

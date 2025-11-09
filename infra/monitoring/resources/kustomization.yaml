@@ -1,0 +1,29 @@
+# ============================================================
+# Kustomization - Monitoring Stack (Grafana + Prometheus + Vault)
+# ============================================================
+
+resources:
+  # ------------------------------------------------------------
+  # 🗄️ Persistent Storage (Grafana)
+  # ------------------------------------------------------------
+  - pv-grafana.yaml
+  - pvc-grafana.yaml
+
+  # ------------------------------------------------------------
+  # 🌐 Ingress & TLS Certificates
+  # ------------------------------------------------------------
+  - ir-grafana.yaml
+  - cert-grafana.yaml
+  - ir-prometheus.yaml
+  - cert-prometheus.yaml
+
+  # ------------------------------------------------------------
+  # 🔐 Vault Integration (Secrets & Service Accounts)
+  # ------------------------------------------------------------
+  - sa-grafana.yaml
+  - spc-grafana.yaml
+
+  # ------------------------------------------------------------
+  # ⚙️ Sync Jobs (Vault → Kubernetes Secret Injection)
+  # ------------------------------------------------------------
+  - job-grafana.yaml

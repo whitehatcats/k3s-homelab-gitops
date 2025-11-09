@@ -1,0 +1,29 @@
+# ============================================================
+# IngressRoute - Velero UI
+# ============================================================
+
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: velero-ui
+  namespace: velero
+
+spec:
+  entryPoints:
+    - websecure
+
+  # ------------------------------------------------------------
+  # Routing Rules
+  # ------------------------------------------------------------
+  routes:
+    - match: Host(`velero.kub.techcats.org`)
+      kind: Rule
+      services:
+        - name: velero-ui
+          port: 3000
+
+  # ------------------------------------------------------------
+  # TLS Configuration
+  # ------------------------------------------------------------
+  tls:
+    secretName: velero-ui-tls

@@ -1,0 +1,30 @@
+# ============================================================
+# Argo CD Application | cert-clusterissuer
+# ============================================================
+
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: cert-clusterissuer
+  namespace: argocd
+
+
+# ------------------------------------------------------------
+# Specification
+# ------------------------------------------------------------
+spec:
+  project: homelab
+
+  source:
+    repoURL: git@github.com:whitehatcats/k3s-homelab-gitops.git
+    targetRevision: HEAD
+    path: infra/cert-clusterissuer/resources
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: cert-manager
+
+  syncPolicy:
+    automated:
+      selfHeal: true
+      prune: true

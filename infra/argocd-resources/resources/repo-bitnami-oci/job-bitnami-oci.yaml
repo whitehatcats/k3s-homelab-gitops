@@ -1,0 +1,51 @@
+# ============================================================
+# Job - Sync Bitnami OCI Secret (Vault CSI)
+# ============================================================
+
+apiVersion: batch/v1
+kind: Job
+
+metadata:
+  name: sync-bitnami-oci
+  namespace: argocd
+
+
+# ------------------------------------------------------------
+# Job Specification
+# ------------------------------------------------------------
+spec:
+  template:
+    spec:
+      serviceAccountName: argocd-sa
+      restartPolicy: OnFailure
+
+
+      # --------------------------------------------------------
+      # Containers
+      # --------------------------------------------------------
+      containers:
+        - name: sync-bitnami-oci
+          image: busybox
+          command:
+            - sh
+            - -c
+            - |
+              echo "Syncing Vault secret: bitnami-oci..."
+              sleep 10
+              echo "Done syncing bitnami-oci."
+          volumeMounts:
+            - name: secrets-store-bitnami-oci
+              mountPath: /mnt/secrets-store
+              readOnly: true
+
+
+      # --------------------------------------------------------
+      # Volumes (Vault CSI)
+      # --------------------------------------------------------
+      volumes:
+        - name: secrets-store-bitnami-oci
+          csi:
+            driver: secrets-store.csi.k8s.io
+            readOnly: true
+            volumeAttributes:
+              secretProviderClass: bitnami-oci

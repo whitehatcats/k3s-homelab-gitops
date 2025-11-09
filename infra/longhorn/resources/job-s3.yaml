@@ -1,0 +1,50 @@
+# ============================================================
+# Longhorn S3 Sync Job
+# ============================================================
+
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: sync-longhorn-s3
+  namespace: longhorn-system
+
+spec:
+  # ------------------------------------------------------------
+  # Job Configuration
+  # ------------------------------------------------------------
+  backoffLimit: 1
+
+  template:
+    spec:
+      serviceAccountName: longhorn-sa   # must have Vault access (roleName = longhorn)
+      restartPolicy: OnFailure
+
+      # ------------------------------------------------------------
+      # Containers
+      # ------------------------------------------------------------
+      containers:
+        - name: sync-longhorn-s3
+          image: busybox
+          imagePullPolicy: IfNotPresent
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              echo "Syncing Longhorn S3 secret from Vault..."
+              sleep 10
+              echo "Sync complete."
+
+          volumeMounts:
+            - name: secrets-store
+              mountPath: /mnt/secrets-store
+              readOnly: true
+
+      # ------------------------------------------------------------
+      # Volumes
+      # ------------------------------------------------------------
+      volumes:
+        - name: secrets-store
+          csi:
+            driver: secrets-store.csi.k8s.io
+            readOnly: true
+            volumeAttributes:
+              secretProviderClass: longhorn-s3-spc

@@ -1,0 +1,53 @@
+# ============================================================
+# Job | Sync Prometheus Token from Vault
+# ============================================================
+
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: sync-prometheus-token
+  namespace: vault
+  labels:
+    app.kubernetes.io/name: prometheus
+    app.kubernetes.io/component: vault-sync
+
+spec:
+  # ------------------------------------------------------------
+  # Job Configuration
+  # ------------------------------------------------------------
+  backoffLimit: 1
+
+  template:
+    spec:
+      serviceAccountName: sa-vault     # must have Vault access (roleName = sa-prometheus)
+      restartPolicy: OnFailure
+
+      # ------------------------------------------------------------
+      # Containers
+      # ------------------------------------------------------------
+      containers:
+        - name: sync-prometheus-token
+          image: busybox
+          imagePullPolicy: IfNotPresent
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              echo "Syncing Prometheus Vault token..."
+              sleep 10
+              echo "Sync complete."
+
+          volumeMounts:
+            - name: secrets-store
+              mountPath: /mnt/secrets-store
+              readOnly: true
+
+      # ------------------------------------------------------------
+      # Volumes
+      # ------------------------------------------------------------
+      volumes:
+        - name: secrets-store
+          csi:
+            driver: secrets-store.csi.k8s.io
+            readOnly: true
+            volumeAttributes:
+              secretProviderClass: vault-prometheus-token

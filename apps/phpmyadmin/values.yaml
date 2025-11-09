@@ -1,0 +1,99 @@
+# ============================================================
+# phpMyAdmin - Helm Values
+# ============================================================
+
+
+# ------------------------------------------------------------
+# Global Configuration
+# ------------------------------------------------------------
+global:
+  security:
+    allowInsecureImages: true
+
+
+# ------------------------------------------------------------
+# Image Configuration
+# ------------------------------------------------------------
+image:
+  registry: docker.io
+  repository: bitnamilegacy/phpmyadmin
+  tag: latest
+
+
+# ------------------------------------------------------------
+# Deployment Settings
+# ------------------------------------------------------------
+automountServiceAccountToken: false
+replicas: 1
+
+
+# ------------------------------------------------------------
+# Resources
+# ------------------------------------------------------------
+resourcesPreset: micro
+resources: {}
+
+
+# ------------------------------------------------------------
+# Pod Security Context
+# ------------------------------------------------------------
+podSecurityContext:
+  enabled: true
+  fsGroup: 1001
+  fsGroupChangePolicy: Always
+
+
+# ------------------------------------------------------------
+# Container Security Context
+# ------------------------------------------------------------
+containerSecurityContext:
+  enabled: true
+  runAsNonRoot: true
+  runAsUser: 1001
+  runAsGroup: 1001
+  readOnlyRootFilesystem: true
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop: ["ALL"]
+  seccompProfile:
+    type: RuntimeDefault
+
+
+# ------------------------------------------------------------
+# Service Configuration
+# ------------------------------------------------------------
+service:
+  type: ClusterIP
+  ports:
+    http: 80
+    https: 443
+  targetPorts:
+    http: 8080
+    https: 8443
+
+
+# ------------------------------------------------------------
+# Ingress
+# ------------------------------------------------------------
+ingress:
+  enabled: false
+
+
+# ------------------------------------------------------------
+# Database Connection
+# ------------------------------------------------------------
+db:
+  allowArbitraryServer: false
+  host: mariadb.mariadb.svc.cluster.local
+  port: 3306
+  bundleTestDB: false
+  enableSsl: false
+
+
+# ------------------------------------------------------------
+# Network Policy
+# ------------------------------------------------------------
+networkPolicy:
+  enabled: true
+  allowExternal: true
+  allowExternalEgress: true

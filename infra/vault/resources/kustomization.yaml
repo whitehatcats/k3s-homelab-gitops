@@ -1,0 +1,32 @@
+# ============================================================
+# Kustomization | Vault TLS and Monitoring Configuration
+# ============================================================
+
+resources:
+  # ------------------------------------------------------------
+  # Traefik ServersTransport for Secure Backend Communication
+  # ------------------------------------------------------------
+  - st-vault.yaml
+
+  # ------------------------------------------------------------
+  # Certificate | Vault (Let's Encrypt via ClusterIssuer)
+  # ------------------------------------------------------------
+  - cert-vault.yaml
+
+  # ------------------------------------------------------------
+  # IngressRoute | Vault UI Access
+  # ------------------------------------------------------------
+  - ir-vault.yaml
+
+  # ------------------------------------------------------------
+  # Internal CA | Root, Issuer, and Internal Certificates
+  # ------------------------------------------------------------
+  - internal-ca/
+
+  # ------------------------------------------------------------
+  # Vault Monitoring | Prometheus Token & Client Certificate
+  # ------------------------------------------------------------
+  - sa-vault.yaml
+  - spc-vault-prometheus-token.yaml
+  - job-vault-prometheus-token.yaml
+  - cert-vault-metrics-client.yaml

@@ -1,0 +1,17 @@
+# ============================================================
+# Issuer | Vault CA (Signs Vault TLS Certificates)
+# ============================================================
+
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: vault-ca-issuer
+  namespace: vault
+
+
+# ------------------------------------------------------------
+# Specification
+# ------------------------------------------------------------
+spec:
+  ca:
+    secretName: vault-root-ca

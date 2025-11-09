@@ -1,0 +1,41 @@
+# ============================================================
+# IngressRoute - Prometheus (HTTPS via Traefik)
+# ============================================================
+
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: prometheus
+  namespace: monitoring
+  labels:
+    app.kubernetes.io/name: prometheus
+    app.kubernetes.io/instance: prometheus
+    app.kubernetes.io/managed-by: argocd
+    app.kubernetes.io/component: ingress
+    release: prometheus
+
+spec:
+  # ------------------------------------------------------------
+  # Entry Points
+  # ------------------------------------------------------------
+  entryPoints:
+    - websecure
+
+  # ------------------------------------------------------------
+  # Routing Rules
+  # ------------------------------------------------------------
+  routes:
+    - match: Host(`prometheus.kub.techcats.org`)
+      kind: Rule
+      #middlewares:
+        #- name: auth-basic
+          #namespace: traefik
+      services:
+        - name: monitoring-kube-prometheus-prometheus
+          port: 9090
+
+   #------------------------------------------------------------
+   #TLS Configuration
+   #------------------------------------------------------------
+  tls:
+    secretName: prometheus-tls

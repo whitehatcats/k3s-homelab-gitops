@@ -1,0 +1,20 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: wordpress
+spec:
+  routes:
+    - kind: Rule
+      match: Host(`techcats.org`) && (PathPrefix(`/wp-admin`) || Path(`/wp-login.php`))
+      middlewares:
+        - name: wp-admin-allowlist
+      services:
+        - name: wordpress-prod
+          port: 80
+    - kind: Rule
+      match: Host(`techcats.org`)
+      services:
+        - name: wordpress-prod
+          port: 80
+  tls:
+    secretName: wordpress-tls-secret

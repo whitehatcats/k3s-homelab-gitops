@@ -1,0 +1,9 @@
+# ============================================================
+# ServiceAccount | sa-grafana
+# Used for Vault authentication (kubernetes auth method)
+# ============================================================
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: sa-grafana
+  namespace: monitoring

@@ -1,0 +1,62 @@
+# ============================================================
+# Snapshot Controller for Kubernetes (Piraeus Helm Chart)
+# ============================================================
+
+controller:
+  enabled: true
+  replicaCount: 1
+
+  # ------------------------------------------------------------
+  # Controller Arguments
+  # ------------------------------------------------------------
+  args:
+    leaderElection: true
+    leaderElectionNamespace: "kube-system"
+    httpEndpoint: ":8080"
+
+  # ------------------------------------------------------------
+  # Image Configuration
+  # ------------------------------------------------------------
+  image:
+    repository: registry.k8s.io/sig-storage/snapshot-controller
+    pullPolicy: IfNotPresent
+    tag: ""  # use default chart version
+
+  # ------------------------------------------------------------
+  # RBAC and Service Account
+  # ------------------------------------------------------------
+  rbac:
+    create: true
+
+  serviceAccount:
+    create: true
+    name: snapshot-controller
+
+  # ------------------------------------------------------------
+  # VolumeSnapshotClass (Longhorn CSI Integration)
+  # ------------------------------------------------------------
+  volumeSnapshotClasses:
+    - name: longhorn-snapshot-vsc
+      annotations:
+        snapshot.storage.kubernetes.io/is-default-class: "true"
+      labels:
+        velero.io/csi-volumesnapshot-class: "true"
+      driver: driver.longhorn.io
+      deletionPolicy: Delete
+
+  # ------------------------------------------------------------
+  # VolumeGroupSnapshotClass (Optional / Disabled)
+  # ------------------------------------------------------------
+  volumeGroupSnapshotClasses: []
+
+  # ------------------------------------------------------------
+  # Leader Election Configuration
+  # ------------------------------------------------------------
+  leaderElection:
+    enabled: true
+    namespace: kube-system
+
+# ------------------------------------------------------------
+# CRD Installation
+# ------------------------------------------------------------
+installCRDs: true

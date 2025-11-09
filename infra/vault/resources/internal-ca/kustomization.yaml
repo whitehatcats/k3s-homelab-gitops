@@ -1,0 +1,5 @@
+resources:
+  - cert-vault-root-ca.yaml
+  - cert-vault-internal.yaml
+  - ci-vault-selfsigned-root.yaml
+  - issuer-vault-ca.yaml

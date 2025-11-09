@@ -1,0 +1,48 @@
+# ============================================================
+# Vault Helm Values - CSI Driver Configuration
+# ============================================================
+
+# ------------------------------------------------------------
+# Global Configuration
+# ------------------------------------------------------------
+# global:
+#   externalVaultAddr: "https://vault.vault.svc:8200"  # default value
+
+# ------------------------------------------------------------
+# Vault Server and Injector
+# ------------------------------------------------------------
+server:
+  enabled: false
+
+injector:
+  enabled: false
+
+# ------------------------------------------------------------
+# CSI Driver Configuration
+# ------------------------------------------------------------
+csi:
+  enabled: true
+
+  agent:
+    enabled: true
+
+  extraArgs:
+    - "-vault-addr=https://vault.vault.svc:8200"       # default Vault address
+    - "-vault-tls-ca-cert=/vault/userconfig/ca/ca.crt"
+    - "-log-level=debug"
+
+  # ----------------------------------------------------------
+  # Root CA Volume Mount
+  # ----------------------------------------------------------
+  volumes:
+    - name: vault-root-ca
+      secret:
+        secretName: vault-root-ca
+        items:
+          - key: ca.crt
+            path: ca.crt
+
+  volumeMounts:
+    - name: vault-root-ca
+      mountPath: /vault/userconfig/ca
+      readOnly: true

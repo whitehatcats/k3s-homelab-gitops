@@ -1,0 +1,17 @@
+# ============================================================
+# PersistentVolumeClaim - Grafana
+# ============================================================
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: monitoring-grafana
+  namespace: monitoring
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: longhorn-retain
+  resources:
+    requests:
+      storage: 5Gi
+  volumeName: grafana

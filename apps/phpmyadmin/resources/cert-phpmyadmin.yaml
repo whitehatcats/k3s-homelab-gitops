@@ -1,0 +1,38 @@
+# ============================================================
+# Let's Encrypt Certificate (DNS-01)
+# phpMyAdmin — TechCats Homelab
+# ============================================================
+
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: phpmyadmin-tls
+  namespace: phpmyadmin
+
+spec:
+  # ------------------------------------------------------------
+  # Secret and Issuer Reference
+  # ------------------------------------------------------------
+  secretName: phpmyadmin-tls-secret
+  issuerRef:
+    name: letsencrypt-vault-issuer
+    kind: ClusterIssuer
+
+  # ------------------------------------------------------------
+  # Private Key Policy
+  # ------------------------------------------------------------
+  privateKey:
+    rotationPolicy: Always
+
+  # ------------------------------------------------------------
+  # Domain Configuration
+  # ------------------------------------------------------------
+  commonName: phpmyadmin.kub.techcats.org
+  dnsNames:
+    - phpmyadmin.kub.techcats.org
+
+  # ------------------------------------------------------------
+  # Certificate Lifecycle
+  # ------------------------------------------------------------
+  duration: 2160h    # 90 days
+  renewBefore: 360h  # 15 days before expiry

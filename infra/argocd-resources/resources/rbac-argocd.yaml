@@ -1,0 +1,36 @@
+# ============================================================
+# Role - Argo CD Secrets Editor
+# ============================================================
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: argocd-secrets-editor
+  namespace: argocd
+
+rules:
+  - apiGroups: [""]
+    resources: ["secrets"]
+    verbs: ["get", "list", "update", "patch"]
+
+---
+
+# ============================================================
+# RoleBinding - Bind argocd-sa to Secrets Editor Role
+# ============================================================
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: argocd-secrets-editor-binding
+  namespace: argocd
+
+subjects:
+  - kind: ServiceAccount
+    name: argocd-sa
+    namespace: argocd
+
+roleRef:
+  kind: Role
+  name: argocd-secrets-editor
+  apiGroup: rbac.authorization.k8s.io

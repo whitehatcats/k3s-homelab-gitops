@@ -1,0 +1,63 @@
+# ============================================================
+# Argo CD Application - Longhorn (Distributed Storage)
+# ============================================================
+
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: longhorn
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+
+spec:
+  project: homelab
+
+  # ------------------------------------------------------------
+  # Destination Cluster
+  # ------------------------------------------------------------
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: longhorn-system
+
+  # ------------------------------------------------------------
+  # Sources
+  # ------------------------------------------------------------
+  sources:
+    # ----------------------------------------------------------
+    # 1. Git Repository (Helm Values Reference)
+    # ----------------------------------------------------------
+    - repoURL: git@github.com:whitehatcats/k3s-homelab-gitops.git
+      targetRevision: main
+      ref: values
+
+    # ----------------------------------------------------------
+    # 2. Longhorn Helm Chart (Official)
+    # ----------------------------------------------------------
+    - repoURL: https://charts.longhorn.io
+      chart: longhorn
+      targetRevision: 1.10.0
+      helm:
+        valueFiles:
+          - $values/infra/longhorn/values.yaml
+
+    # ----------------------------------------------------------
+    # 3. Local Overlay (Custom Manifests, SPC, Secrets, etc.)
+    # ----------------------------------------------------------
+    - repoURL: git@github.com:whitehatcats/k3s-homelab-gitops.git
+      targetRevision: main
+      path: infra/longhorn/resources
+
+  # ------------------------------------------------------------
+  # Sync Policy
+  # ------------------------------------------------------------
+  syncPolicy:
+    automated:
+      prune: true           # automatically remove out-of-sync resources
+      selfHeal: true        # automatically correct drift
+    syncOptions:
+      - CreateNamespace=true
+      - PruneLast=true
+      - Validate=false       # skip strict validation for Helm CRDs
+      - DeletePropagationPolicy=foreground
+      # - ApplyOutOfSyncOnly=true  # optional optimization

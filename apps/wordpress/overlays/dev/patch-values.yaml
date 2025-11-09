@@ -1,0 +1,6 @@
+# ============================================================
+# Patch - WordPress External Database (Development)
+# ============================================================
+
+externalDatabase:
+  database: wordpress_dev

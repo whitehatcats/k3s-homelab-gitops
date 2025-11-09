@@ -1,0 +1,58 @@
+# ============================================================
+# Argo CD Application — Traefik (Ingress Controller)
+# ============================================================
+
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: traefik
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+
+spec:
+  # ------------------------------------------------------------
+  # Project and Destination
+  # ------------------------------------------------------------
+  project: homelab
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: traefik
+
+  # ------------------------------------------------------------
+  # Sources (Helm Chart + GitOps Values + Extra Resources)
+  # ------------------------------------------------------------
+  sources:
+    # 1️⃣ Traefik Helm chart (official repo)
+    - repoURL: https://traefik.github.io/charts
+      chart: traefik
+      targetRevision: 37.2.0
+      helm:
+        valueFiles:
+          - $values/infra/traefik/values.yaml
+
+    # 2️⃣ Git repository for shared Helm values and manifests
+    - repoURL: git@github.com:whitehatcats/k3s-homelab-gitops.git
+      targetRevision: main
+      ref: values
+
+    # 3️⃣ Additional manifests (IngressRoute, Middleware, etc.)
+    - repoURL: git@github.com:whitehatcats/k3s-homelab-gitops.git
+      targetRevision: main
+      path: infra/traefik/resources
+
+  # ------------------------------------------------------------
+  # Sync Policy
+  # ------------------------------------------------------------
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true    # ✅ Keep Traefik consistent with Git
+
+    syncOptions:
+      - CreateNamespace=true
+      - PruneLast=true
+      - ApplyOutOfSyncOnly=true
+      - ServerSideApply=true
+      - RespectIgnoreDifferences=true
+      - DeletePropagationPolicy=foreground

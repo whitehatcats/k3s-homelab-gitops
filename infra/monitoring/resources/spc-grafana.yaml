@@ -1,0 +1,31 @@
+# ============================================================
+# SecretProviderClass | Grafana Admin Credentials from Vault
+# ============================================================
+apiVersion: secrets-store.csi.x-k8s.io/v1
+kind: SecretProviderClass
+metadata:
+  name: vault-grafana-admin
+  namespace: monitoring
+spec:
+  provider: vault
+  parameters:
+    vaultAddress: "https://vault.vault.svc:8200"
+    vaultMountPath: "kubernetes"
+    roleName: grafana
+    vaultTLSCaCert: "/vault/userconfig/ca/ca.crt"
+    objects: |
+      - objectName: "admin-user"
+        secretPath: "kv/data/grafana/credentials"
+        secretKey: "adminUser"
+      - objectName: "admin-password"
+        secretPath: "kv/data/grafana/credentials"
+        secretKey: "adminPassword"
+
+  secretObjects:
+    - secretName: vault-grafana-admin
+      type: Opaque
+      data:
+        - objectName: "admin-user"
+          key: admin-user
+        - objectName: "admin-password"
+          key: admin-password

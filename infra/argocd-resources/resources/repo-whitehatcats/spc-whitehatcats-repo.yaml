@@ -1,0 +1,53 @@
+# ============================================================
+# SecretProviderClass - whitehatcats GitOps Repository
+# ============================================================
+
+apiVersion: secrets-store.csi.x-k8s.io/v1
+kind: SecretProviderClass
+metadata:
+  name: whitehatcats-gitops
+  namespace: argocd
+
+spec:
+  provider: vault
+
+  # ------------------------------------------------------------
+  # Vault Connection Settings
+  # ------------------------------------------------------------
+  parameters:
+    vaultAddress: "https://vault.vault.svc:8200"
+    vaultMountPath: "kubernetes"
+    roleName: argocd
+    vaultTLSCaCert: "/vault/userconfig/ca/ca.crt"
+
+    # ----------------------------------------------------------
+    # Mapped Vault Secrets
+    # ----------------------------------------------------------
+    objects: |
+      - objectName: "type"
+        secretPath: "kv/data/argocd/whitehatcats-gitops"
+        secretKey: "type"
+      - objectName: "url"
+        secretPath: "kv/data/argocd/whitehatcats-gitops"
+        secretKey: "url"
+      - objectName: "sshPrivateKey"
+        secretPath: "kv/data/argocd/whitehatcats-gitops"
+        secretKey: "sshPrivateKey"
+
+  # ------------------------------------------------------------
+  # Synced Kubernetes Secret
+  # ------------------------------------------------------------
+  secretObjects:
+    - secretName: whitehatcats-gitops
+      type: Opaque
+      labels:
+        argocd.argoproj.io/secret-type: repository
+      annotations:
+        synced-from: vault
+      data:
+        - objectName: "type"
+          key: type
+        - objectName: "url"
+          key: url
+        - objectName: "sshPrivateKey"
+          key: sshPrivateKey

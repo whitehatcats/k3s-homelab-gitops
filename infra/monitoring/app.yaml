@@ -1,0 +1,62 @@
+# ============================================================
+# Argo CD Application - Monitoring (kube-prometheus-stack)
+# ============================================================
+
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: monitoring
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+
+spec:
+  project: homelab
+
+  # ------------------------------------------------------------
+  # Destination Cluster
+  # ------------------------------------------------------------
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: monitoring
+
+  # ------------------------------------------------------------
+  # Sources
+  # ------------------------------------------------------------
+  sources:
+    # ----------------------------------------------------------
+    # 1. Helm Chart (Prometheus Community)
+    # ----------------------------------------------------------
+    - repoURL: https://prometheus-community.github.io/helm-charts
+      chart: kube-prometheus-stack
+      targetRevision: 79.1.0 
+      helm:
+        skipCrds: true  # CRDs handled by monitoring-crds app
+        valueFiles:
+          - $values/infra/monitoring/values.yaml
+
+    # ----------------------------------------------------------
+    # 2. Git Repository (Values Reference)
+    # ----------------------------------------------------------
+    - repoURL: git@github.com:whitehatcats/k3s-homelab-gitops.git
+      targetRevision: main
+      ref: values
+
+    # ----------------------------------------------------------
+    # 3. Local Overlay (Dashboards, Alerts, Custom Config)
+    # ----------------------------------------------------------
+    - repoURL: git@github.com:whitehatcats/k3s-homelab-gitops.git
+      targetRevision: main
+      path: infra/monitoring/resources
+
+  # ------------------------------------------------------------
+  # Sync Policy
+  # ------------------------------------------------------------
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - PruneLast=true
+      - DeletePropagationPolicy=foreground

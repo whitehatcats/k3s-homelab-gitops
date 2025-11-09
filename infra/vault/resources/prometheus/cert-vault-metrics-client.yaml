@@ -1,0 +1,47 @@
+# ============================================================
+# Certificate | Vault Metrics Client (Prometheus)
+# ============================================================
+
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: vault-metrics-client
+  namespace: vault
+  labels:
+    app.kubernetes.io/name: vault
+    app.kubernetes.io/component: telemetry
+    app.kubernetes.io/part-of: vault
+
+# ------------------------------------------------------------
+# Specification
+# ------------------------------------------------------------
+spec:
+  # ----------------------------------------------------------
+  # Secret Output
+  # ----------------------------------------------------------
+  secretName: vault-metrics-client
+
+  # ----------------------------------------------------------
+  # Certificate Subject
+  # ----------------------------------------------------------
+  commonName: vault-metrics-client
+
+  # ----------------------------------------------------------
+  # Usages
+  # ----------------------------------------------------------
+  usages:
+    - client auth
+    - digital signature
+
+  # ----------------------------------------------------------
+  # Lifetime and Renewal
+  # ----------------------------------------------------------
+  duration: 8760h       # 1 year
+  renewBefore: 240h     # Renew 10 days before expiration
+
+  # ----------------------------------------------------------
+  # Issuer Reference (Vault CA)
+  # ----------------------------------------------------------
+  issuerRef:
+    name: vault-ca-issuer
+    kind: Issuer
