@@ -51,7 +51,7 @@ spec:
     # App-specific overlay path
     - repoURL: git@github.com:whitehatcats/k3s-homelab-gitops.git
       targetRevision: main
-      path: apps/mariadb
+      path: apps/mariadb/resources
 
 
   # ----------------------------------------------------------
