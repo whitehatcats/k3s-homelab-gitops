@@ -113,3 +113,11 @@ extraVolumeMounts:
   - name: csi-vault-secrets
     mountPath: /mnt/secrets-store
     readOnly: true
+
+
+# ------------------------------------------------------------
+# Network Policy
+# ------------------------------------------------------------
+
+networkPolicy:
+  enabled: false

@@ -94,6 +94,6 @@ db:
 # Network Policy
 # ------------------------------------------------------------
 networkPolicy:
-  enabled: true
-  allowExternal: true
-  allowExternalEgress: true
+  enabled: false
+  #allowExternal: true
+  #allowExternalEgress: true
