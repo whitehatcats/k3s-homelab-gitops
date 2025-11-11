@@ -22,11 +22,4 @@ resources:
   # Internal CA | Root, Issuer, and Internal Certificates
   # ------------------------------------------------------------
   - internal-ca/
-
-  # ------------------------------------------------------------
-  # Vault Monitoring | Prometheus Token & Client Certificate
-  # ------------------------------------------------------------
-  - sa-vault.yaml
-  - spc-vault-prometheus-token.yaml
-  - job-vault-prometheus-token.yaml
-  - cert-vault-metrics-client.yaml
+  - prometheus/
