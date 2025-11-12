@@ -11,10 +11,17 @@ spec:
   endpointSelector:
     matchLabels:
       app.kubernetes.io/name: wordpress
+      app.kubernetes.io/instance: wordpress-prod
+
   egress:
+    # --------------------------------------------------------
+    # Allow traffic to MariaDB service in mariadb namespace
+    # --------------------------------------------------------
     - toEndpoints:
         - matchLabels:
             app.kubernetes.io/name: mariadb
+            app.kubernetes.io/instance: mariadb
+            io.kubernetes.pod.namespace: mariadb
       toPorts:
         - ports:
             - port: "3306"
