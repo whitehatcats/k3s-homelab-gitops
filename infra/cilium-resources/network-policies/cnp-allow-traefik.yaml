@@ -1,0 +1,34 @@
+# ============================================================
+# CiliumNetworkPolicy - Allow Traefik → WordPress
+# ============================================================
+
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: allow-traefik-to-wordpress
+  namespace: wordpress-prod
+
+spec:
+  # ------------------------------------------------------------
+  # Target WordPress Pods
+  # ------------------------------------------------------------
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/name: wordpress
+      app.kubernetes.io/instance: wordpress-prod
+
+  # ------------------------------------------------------------
+  # Allow Ingress from Traefik
+  # ------------------------------------------------------------
+  ingress:
+    - fromEndpoints:
+        - matchLabels:
+            app.kubernetes.io/name: traefik
+            app.kubernetes.io/instance: traefik-traefik
+            io.kubernetes.pod.namespace: traefik
+      toPorts:
+        - ports:
+            - port: "8080"
+              protocol: TCP
+            - port: "8443"
+              protocol: TCP
