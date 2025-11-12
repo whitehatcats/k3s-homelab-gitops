@@ -1,3 +1,4 @@
 resources:
 - np-default-deny-all.yaml
 - cnp-allow-dns.yaml
+- cnp-allow-mariadb.yaml
