@@ -1,0 +1,21 @@
+# ============================================================
+# Allow WordPress → MariaDB
+# ============================================================
+
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: allow-wordpress-to-mariadb
+  namespace: wordpress-prod
+spec:
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/name: wordpress
+  egress:
+    - toEndpoints:
+        - matchLabels:
+            app.kubernetes.io/name: mariadb
+      toPorts:
+        - ports:
+            - port: "3306"
+              protocol: TCP
