@@ -8,7 +8,7 @@ metadata:
   name: wordpress
 spec:
   routes:
-    - match: Host(`development.techcats.org`)
+    - match: Host(`development.kub.techcats.org`)
       kind: Rule
       services:
         - name: wordpress-dev
